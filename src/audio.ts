@@ -56,13 +56,15 @@ export const SFX: {
                 for (let i = 0; i < times; i++)
                     p.mutate();
             }
-            p.sound_vol *= GS.audio.sfxCache.volumePct;
+            // 与 UI._vol() 保持一致的音量计算：sfxVolume × masterVolume
+            const vol = (GS.settings.sfxVolume / 100) * (GS.settings.masterVolume / 100);
+            p.sound_vol *= vol;
             sfxr.toAudio(p).play();
         }
         catch (e) { /* sfx unavailable */ }
     },
-    setVolume(pct: number) {
-        GS.audio.sfxCache.volumePct = pct / 100;
+    setVolume(_pct: number) {
+        // 音量现已通过 GS.settings 统一管理，保留此方法供外部兼容调用
     },
 };
 /* ============================================================
