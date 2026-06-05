@@ -166,7 +166,7 @@
 .mail-item:last-child { border-bottom: none; }
 .mail-item:hover { background: #000080; color: #fff; }
 .mail-detail { padding: 4px 0; }
-.mail-full { line-height: 1.6; white-space: pre-line; }
+.mail-full { line-height: 1.6; white-space: pre-line; margin-top: 8px; flex: 1; height: 100% }
 
 /* === RADIO === */
 .window-overlay .window.window-radio { width: 370px; height: auto; max-height: 560px; }

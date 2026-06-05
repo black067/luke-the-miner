@@ -12,7 +12,7 @@
 - **构建**：`tsc`（TypeScript Compiler）
 - **测试**：Vitest
 - **样式**：98.css + 自定义 CSS
-- **音效**：sfxr / riffwave
+- **音效**：Web Audio API 合成（离线可用）
 
 ## 📜 许可证
 

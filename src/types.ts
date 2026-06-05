@@ -2,11 +2,6 @@
    TYPES.TS — Shared type definitions for 星环矿工 MVP
    ============================================================ */
 
-declare global {
-  const sfxr: { b58decode(compressed: string): Record<string, unknown>; toAudio(params: Params): HTMLAudioElement; };
-  class Params { sound_vol: number; fromJSON(json: Record<string, unknown>): void; mutate(): void; }
-}
-
 export interface QualityDef { name: string; color: string; weight: number; affixCount: number; hasMechanic: boolean; }
 export type QualityKey = 'common' | 'rare' | 'epic' | 'legend' | 'mythic';
 export interface BaseModule { id: string; name: string; icon: string; type: string; quality: string; desc: string; priceBtc?: number; mechanic?: string; qty?: number; atk?: number; magazine?: number; dmgMult?: number; durability?: number; extraSlots?: number; scatterAngle?: number; fireInterval?: number; carryMax?: number; effect?: string; value?: number; buffId?: string; slot?: string; [key: string]: unknown; }
@@ -39,7 +34,7 @@ export interface QuickBarSlot { itemId: string | null; qty: number; }
 export interface Equipment { weapon: WeaponModule | null; ball: BallModule | null; storage: StorageModule | null; accessories: (AccessoryModule | null)[]; }
 export interface Unlocks { radioRepaired: boolean; undergroundVisible: boolean; areas: Record<string, boolean>; }
 export interface GameSettings { masterVolume: number; sfxVolume: number; crtFilter: number; uiScale: number; language: string; clippyAgent: string; }
-export interface AudioState { sfxCache: { volumePct: number; randomFactor: number; }; }
+export interface AudioState { sfxCache: { randomFactor: number; }; }
 export interface WarehouseItem extends BaseModule { qty: number; priceBtc?: number; carryMax?: number; }
 export interface GameStateObj { screen: string; settingsReturn: string; isNewGame: boolean; debt: number; bitcoin: number; cash: number; selectedArea: string; combatResult: string | null; firstCombat: boolean; equipment: Equipment; quickBar: QuickBarSlot[]; warehouse: WarehouseItem[]; upgrades: Set<string>; unlocks: Unlocks; mailsRead: Record<string, boolean>; settings: GameSettings; audio: AudioState; }
 export interface CombatShip { x: number; hp: number; fuel: number; invincibleTimer: number; angle: number; }

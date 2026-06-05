@@ -1,70 +1,271 @@
 /* ============================================================
-   AUDIO.TS — SFX system (sfxr-based combat) + UI sounds (Web Audio API)
+   AUDIO.TS — Combat SFX + UI sounds (all Web Audio API synthesized)
+   Zero external dependencies, works offline.
    ============================================================ */
 
 import { GS } from './state.js';
 
-interface SfxCache {
-  [key: string]: Record<string, unknown> | null;
+/** Generate a short white-noise AudioBuffer for percussion/explosion textures. */
+function _noiseBuf(ctx: AudioContext, dur: number): AudioBuffer {
+    const len = Math.max(1, Math.floor(ctx.sampleRate * dur));
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    return buf;
 }
 
+/* ============================================================
+   SFX — Combat sound effects (Web Audio API)
+   Same volume pipeline as UI sounds so loudness is consistent.
+   ============================================================ */
 export const SFX: {
-  cache: SfxCache;
-  initialized: boolean;
-  init(): void;
-  play(key: string, useMutate?: boolean): void;
-  setVolume(pct: number): void;
+    _ctx: AudioContext | null;
+    initialized: boolean;
+    init(): void;
+    _ensureCtx(): AudioContext | null;
+    _vol(): number;
+    play(key: string, useMutate?: boolean): void;
+    setVolume(_pct: number): void;
 } = {
-    cache: {} as SfxCache,
+    _ctx: null as AudioContext | null,
     initialized: false,
     init() {
-        if (this.initialized)
-            return;
-        const defs: Array<[string, string]> = [
-            ['shoot', '57uBnWcWXjKSMiXVkfmoU2bX66pjdTBmSMHkSMgmfUj4ayvwoXRJ7c9rNpoQo1UHQrkM1URcxDv6ikQdwzAkwcYHCCidsXEyCd1Ta1d1jHDo8Beu7aeFLvyrF'],
-            ['hit', '57uBnWgjfXc3EvcWiM92MVZMaGybMvR3uqhdobJrmK54Eb4iVFDt814Q4GevJMZ98eyGb393gapaegdE7sX1nGmNYdG4ZVGULyWVD8efzKXScxDJXUkRVmN1m'],
-            ['kill', '34T6Pkkh8tccthB7qY6RP3bgh6CrYcakG9gaVcXanE9mJSEs6CaumcYj6CEUTdLjDWKx1J8hvWMHnTYJcchTterEh2wg1z6LsksCCftr4ePGsyzi3SxqavUab'],
-            ['bossKill', '1111135hjPGSNeYAewVLtrrmg9VSPTzPu7rEFcvStDzVhg1SNRQeqCS1rHgNk2pdJTMNdhS9CuXUBS1uBT7ykX1kuokPj3HYZY9fTKyXTvpVe7BhhtPeh38K'],
-            ['fuel', '34T6PkkEfNRaiQKGdyWNSKRZjzHdLcpBaxkvQpQGUF1Gq1BBDtjSCS9nAFXweXit28uEg9pDxH7ML1mETdZLJ5Y4xZ7ftQZqfsHVKmsxwDYrnB69ZSBYZB2JK'],
-            ['damage', '111116FvxZZiPc9QC5gCNSc3yQtptEgKL6jGZBfCw4BBadhr7ujzgezRUa6pYSvJjgQciP7ymCseBgg8NxJYALcF8z87VKAuTmQCjQddzNz31LfaxR8RoYK1'],
-            ['noAmmo', '11111CbWrmnrsufPmk2B1kudGx5UCKQ3CjMx5zVDEWW7vWnaaZuiYfNzA5UxBk17D4oA2nAJRvPHbB4PPAxNC5CDfHy6jAL9RVgTqgKERTQFZ7nscVVt1EEB'],
-            ['waveUp', '11111DqYrHCBn9WNyjvJR3JpXzdaEj1FGZhThqHfPECdqqDm8GPLHAVZLXpyUekdoWeF1spTspQwWriV5EbEta1FxrSzMxS4diEE2HxUmVYpd3bmYAsTRUX9'],
-            ['victory', '11111ASrpTbegFfrb1pVW3qG9gv3LCSHeG46gpCsmdGGXu7ZsciK9iBWWvTs5c7CiZKxAqNsd9RZ6wH3AEmevTUrE1LV669A1QAGXcSZjGk3jjuvs9pAFBx3'],
-            ['defeat', '6sCsK8iXFx1bJFRyRZTC2oTn4RqnBBmPSQ7fmQE3aGHNgMEwWKtjvzcP5PRaYNk7LkGqtMEwxJUQGTLMh6LMTBJsLFqMeC2dGvH5EdX4y5xntkJooRYcwrXbh'],
-        ];
-        for (const [key, compressed] of defs) {
-            try {
-                this.cache[key] = sfxr.b58decode(compressed);
-            }
-            catch (e) {
-                this.cache[key] = null;
-            }
-        }
+        if (this.initialized) return;
         UI.init();
         this.initialized = true;
     },
-    play(key: string, useMutate: boolean = true) {
-        if (!this.initialized)
-            this.init();
-        if (!this.cache[key])
-            return;
-        try {
-            const p = new Params();
-            p.fromJSON(this.cache[key]!);
-            if (GS.audio.sfxCache.randomFactor > 0 && useMutate) {
-                const times = Math.round(GS.audio.sfxCache.randomFactor / 0.05);
-                for (let i = 0; i < times; i++)
-                    p.mutate();
-            }
-            // 与 UI._vol() 保持一致的音量计算：sfxVolume × masterVolume
-            const vol = (GS.settings.sfxVolume / 100) * (GS.settings.masterVolume / 100);
-            p.sound_vol *= vol;
-            sfxr.toAudio(p).play();
+    _ensureCtx() {
+        if (!this._ctx) {
+            try { this._ctx = new (window.AudioContext || (window as any).webkitAudioContext)(); }
+            catch (e) { /* Web Audio unavailable */ }
         }
-        catch (e) { /* sfx unavailable */ }
+        if (this._ctx && this._ctx.state === 'suspended') this._ctx.resume();
+        return this._ctx;
+    },
+    _vol() { return (GS.settings.sfxVolume / 100) * (GS.settings.masterVolume / 100); },
+
+    play(key: string, useMutate: boolean = true) {
+        if (!this.initialized) this.init();
+        const ctx = this._ensureCtx();
+        if (!ctx) return;
+        const v = this._vol();
+        if (v <= 0) return;
+        const now = ctx.currentTime;
+        // Mutation → subtle random pitch variation
+        const detune = (useMutate && GS.audio.sfxCache.randomFactor > 0)
+            ? (Math.random() - 0.5) * 2 * GS.audio.sfxCache.randomFactor * 180
+            : 0;
+
+        switch (key) {
+            /* ---- shoot: laser blaster (noise burst + descending saw) ---- */
+            case 'shoot': {
+                const ndur = 0.08;
+                const noise = ctx.createBufferSource();
+                noise.buffer = _noiseBuf(ctx, ndur);
+                const filt = ctx.createBiquadFilter();
+                filt.type = 'bandpass'; filt.frequency.value = 1400; filt.Q.value = 1.5;
+                const ng = ctx.createGain();
+                ng.gain.setValueAtTime(v * 0.20, now);
+                ng.gain.exponentialRampToValueAtTime(0.001, now + ndur);
+                noise.connect(filt).connect(ng).connect(ctx.destination);
+                noise.start(now); noise.stop(now + ndur);
+
+                const osc = ctx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(580 + detune, now);
+                osc.frequency.exponentialRampToValueAtTime(140, now + 0.06);
+                const og = ctx.createGain();
+                og.gain.setValueAtTime(v * 0.11, now);
+                og.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+                osc.connect(og).connect(ctx.destination);
+                osc.start(now); osc.stop(now + 0.07);
+                break;
+            }
+            /* ---- hit: bullet impact (low sine thud + short noise) ---- */
+            case 'hit': {
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(110 + detune, now);
+                osc.frequency.exponentialRampToValueAtTime(45, now + 0.10);
+                const og = ctx.createGain();
+                og.gain.setValueAtTime(v * 0.28, now);
+                og.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                osc.connect(og).connect(ctx.destination);
+                osc.start(now); osc.stop(now + 0.13);
+
+                const ndur = 0.05;
+                const noise = ctx.createBufferSource();
+                noise.buffer = _noiseBuf(ctx, ndur);
+                const ng = ctx.createGain();
+                ng.gain.setValueAtTime(v * 0.12, now);
+                ng.gain.exponentialRampToValueAtTime(0.001, now + ndur);
+                noise.connect(ng).connect(ctx.destination);
+                noise.start(now); noise.stop(now + ndur);
+                break;
+            }
+            /* ---- kill: enemy destroyed (deep boom + low-pass noise) ---- */
+            case 'kill': {
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(65 + detune * 0.3, now);
+                osc.frequency.exponentialRampToValueAtTime(25, now + 0.28);
+                const og = ctx.createGain();
+                og.gain.setValueAtTime(v * 0.36, now);
+                og.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+                osc.connect(og).connect(ctx.destination);
+                osc.start(now); osc.stop(now + 0.33);
+
+                const ndur = 0.18;
+                const noise = ctx.createBufferSource();
+                noise.buffer = _noiseBuf(ctx, ndur);
+                const filt = ctx.createBiquadFilter();
+                filt.type = 'lowpass'; filt.frequency.value = 800;
+                const ng = ctx.createGain();
+                ng.gain.setValueAtTime(v * 0.18, now);
+                ng.gain.exponentialRampToValueAtTime(0.001, now + ndur);
+                noise.connect(filt).connect(ng).connect(ctx.destination);
+                noise.start(now); noise.stop(now + ndur);
+                break;
+            }
+            /* ---- bossKill: dramatic explosion (deep rumble + sweeping noise + rising tone) ---- */
+            case 'bossKill': {
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(42 + detune * 0.2, now);
+                osc.frequency.exponentialRampToValueAtTime(14, now + 0.65);
+                const og = ctx.createGain();
+                og.gain.setValueAtTime(v * 0.44, now);
+                og.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
+                osc.connect(og).connect(ctx.destination);
+                osc.start(now); osc.stop(now + 0.76);
+
+                const ndur = 0.38;
+                const noise = ctx.createBufferSource();
+                noise.buffer = _noiseBuf(ctx, ndur);
+                const filt = ctx.createBiquadFilter();
+                filt.type = 'lowpass';
+                filt.frequency.setValueAtTime(1100, now);
+                filt.frequency.exponentialRampToValueAtTime(180, now + ndur);
+                const ng = ctx.createGain();
+                ng.gain.setValueAtTime(v * 0.24, now);
+                ng.gain.exponentialRampToValueAtTime(0.001, now + ndur);
+                noise.connect(filt).connect(ng).connect(ctx.destination);
+                noise.start(now); noise.stop(now + ndur);
+
+                const osc2 = ctx.createOscillator();
+                osc2.type = 'triangle';
+                osc2.frequency.setValueAtTime(180, now + 0.12);
+                osc2.frequency.exponentialRampToValueAtTime(560, now + 0.50);
+                const og2 = ctx.createGain();
+                og2.gain.setValueAtTime(0, now);
+                og2.gain.linearRampToValueAtTime(v * 0.09, now + 0.16);
+                og2.gain.exponentialRampToValueAtTime(0.001, now + 0.56);
+                osc2.connect(og2).connect(ctx.destination);
+                osc2.start(now + 0.12); osc2.stop(now + 0.57);
+                break;
+            }
+            /* ---- fuel: power-up collect (ascending sine sweep) ---- */
+            case 'fuel': {
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(340 + detune, now);
+                osc.frequency.exponentialRampToValueAtTime(920, now + 0.13);
+                const og = ctx.createGain();
+                og.gain.setValueAtTime(v * 0.20, now);
+                og.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                osc.connect(og).connect(ctx.destination);
+                osc.start(now); osc.stop(now + 0.16);
+                break;
+            }
+            /* ---- damage: player hurt (harsh square with tremolo + discordant overtone) ---- */
+            case 'damage': {
+                const osc = ctx.createOscillator();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(155 + detune, now);
+                const og = ctx.createGain();
+                og.gain.setValueAtTime(v * 0.16, now);
+                og.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+                // Tremolo via LFO modulating gain
+                const lfo = ctx.createOscillator();
+                lfo.type = 'sine'; lfo.frequency.value = 28;
+                const lfoG = ctx.createGain();
+                lfoG.gain.value = v * 0.09;
+                lfo.connect(lfoG).connect(og.gain);
+                osc.connect(og).connect(ctx.destination);
+                osc.start(now); osc.stop(now + 0.23);
+                lfo.start(now); lfo.stop(now + 0.23);
+
+                const osc2 = ctx.createOscillator();
+                osc2.type = 'square';
+                osc2.frequency.setValueAtTime(300, now);
+                const og2 = ctx.createGain();
+                og2.gain.setValueAtTime(v * 0.06, now);
+                og2.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+                osc2.connect(og2).connect(ctx.destination);
+                osc2.start(now); osc2.stop(now + 0.17);
+                break;
+            }
+            /* ---- noAmmo: empty click (ultra-short square blip, no mutate) ---- */
+            case 'noAmmo': {
+                const osc = ctx.createOscillator();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(720, now);  // no detune — always identical
+                const og = ctx.createGain();
+                og.gain.setValueAtTime(v * 0.10, now);
+                og.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+                osc.connect(og).connect(ctx.destination);
+                osc.start(now); osc.stop(now + 0.035);
+                break;
+            }
+            /* ---- waveUp: next-wave alert (quick ascending two-tone) ---- */
+            case 'waveUp': {
+                [580, 780].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    osc.type = 'sine';
+                    const t = now + i * 0.07;
+                    osc.frequency.setValueAtTime(freq + detune, t);
+                    const og = ctx.createGain();
+                    og.gain.setValueAtTime(v * 0.18, t);
+                    og.gain.exponentialRampToValueAtTime(0.001, t + 0.10);
+                    osc.connect(og).connect(ctx.destination);
+                    osc.start(t); osc.stop(t + 0.11);
+                });
+                break;
+            }
+            /* ---- victory: triumphant ascending arpeggio (C5–C6) ---- */
+            case 'victory': {
+                [523, 659, 784, 1047].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    osc.type = 'triangle';
+                    const t = now + i * 0.10;
+                    osc.frequency.setValueAtTime(freq + detune, t);
+                    const og = ctx.createGain();
+                    og.gain.setValueAtTime(v * 0.16, t);
+                    og.gain.exponentialRampToValueAtTime(0.001, t + 0.20);
+                    osc.connect(og).connect(ctx.destination);
+                    osc.start(t); osc.stop(t + 0.21);
+                });
+                break;
+            }
+            /* ---- defeat: sad descending tones ---- */
+            case 'defeat': {
+                [440, 370, 330, 262].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    osc.type = 'triangle';
+                    const t = now + i * 0.13;
+                    osc.frequency.setValueAtTime(freq + detune, t);
+                    const og = ctx.createGain();
+                    og.gain.setValueAtTime(v * 0.15, t);
+                    og.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+                    osc.connect(og).connect(ctx.destination);
+                    osc.start(t); osc.stop(t + 0.23);
+                });
+                break;
+            }
+        }
     },
     setVolume(_pct: number) {
-        // 音量现已通过 GS.settings 统一管理，保留此方法供外部兼容调用
+        // 音量统一由 GS.settings 管理，保留方法供外部兼容调用
     },
 };
 /* ============================================================

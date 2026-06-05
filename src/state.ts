@@ -38,7 +38,7 @@ export let GS: GameStateObj = {
         clippyAgent: 'Clippy',
     },
     audio: {
-        sfxCache: { volumePct: 1.0, randomFactor: 0 },
+        sfxCache: { randomFactor: 0 },
     },
 };
 
@@ -74,7 +74,7 @@ const DEFAULT_GS: GameStateObj = {
         clippyAgent: 'Clippy',
     },
     audio: {
-        sfxCache: { volumePct: 1.0, randomFactor: 0 },
+        sfxCache: { randomFactor: 0 },
     },
 };
 
