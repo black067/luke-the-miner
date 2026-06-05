@@ -2,7 +2,8 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    tags: ['v*']
+    branches:
+      - main
 
   # 允许手动触发
   workflow_dispatch:
@@ -39,7 +40,7 @@ jobs:
         run: npm run build
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
       - name: Prepare publish directory
         run: |
@@ -63,4 +64,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
