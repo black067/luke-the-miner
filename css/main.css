@@ -1,0 +1,65 @@
+/* ============================================================
+   MAIN.CSS — Structural layout only. Visual styling by 98.css.
+   ============================================================ */
+
+/* === RESET & BASE === */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+body { display: flex; align-items: center; justify-content: center; }
+
+/* === CRT CONTAINER === */
+.crt {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  background: #000;
+  overflow: hidden;
+}
+.crt::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+  pointer-events: none; z-index: 999;
+}
+.crt::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+  pointer-events: none; z-index: 998;
+}
+
+/* === SCREEN MANAGEMENT === */
+#crt-content { width: 100%; height: 100%; position: relative; transform-origin: center center; }
+.screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 10; }
+.screen.active { display: flex; }
+
+/* === SCREEN LAYOUTS (flex direction + centering only) === */
+#main-menu { flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+#settlement-screen { flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+#settlement-screen .window { width: 300px; }
+#settings-screen { flex-direction: column; align-items: center; justify-content: center; }
+
+/* === INTRO (phone messaging, not 98.css) === */
+#intro-screen { flex-direction: column; align-items: center; justify-content: center; background: #1a1a2e; }
+.phone-frame { width: 70%; max-width: 380px; background: #0c0c1a; border: 3px solid #333; border-radius: 20px; padding: 24px 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 0 40px rgba(0,0,0,0.6); }
+.phone-header { text-align: center; font-family: 'Press Start 2P', monospace; color: #888; letter-spacing: 1px; }
+.sms-bubble { background: #1a2a1a; border: 1px solid #2a4a2a; border-radius: 8px; padding: 12px; line-height: 1.5; color: #adc; }
+.sms-bubble .sender { font-family: 'Press Start 2P', monospace; color: #5a5; margin-bottom: 6px; }
+.sms-bubble .link { color: #4af; text-decoration: underline; cursor: pointer; }
+.sms-bubble .link:hover { color: #8cf; }
+.sms-bubble .action-btn { display: inline-block; margin-top: 8px; background: #2a5a2a; color: #0f0; padding: 6px 16px; border-radius: 4px; cursor: pointer; text-align: center; }
+.sms-bubble .action-btn:hover { background: #3a7a3a; }
+.intro-skip { margin-top: 16px; color: #666; cursor: pointer; text-decoration: underline; }
+.intro-skip:hover { color: #aaa; }
+
+/* === MAIN MENU === */
+.menu-stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
+
+/* === TOAST === */
+.toast {
+  position: absolute; bottom: 48px; left: 50%; transform: translateX(-50%);
+  z-index: 500; pointer-events: none;
+  background: #ffffcc; color: #000; padding: 4px 16px;
+  border: 2px solid; border-color: #fff #808080 #808080 #fff;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards;
+}
+@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }

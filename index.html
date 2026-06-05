@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>星环矿工 MVP</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<!-- 98.css -->
+<link rel="stylesheet" href="https://unpkg.com/98.css">
+<!-- Game styles -->
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/components.css">
+<!-- Clippy.js -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/smore-inc/clippy.js/build/clippy.css" media="all">
+<!-- External libs -->
+<script src="https://sfxr.me/riffwave.js"></script>
+<script src="https://sfxr.me/sfxr.js"></script>
+</head>
+<body>
+
+<div class="crt" id="app">
+  <div id="crt-content">
+
+  <!-- ========== MAIN MENU ========== -->
+  <div class="screen active" id="main-menu" style="background:#c0c0c0;">
+    <canvas class="menu-stars"></canvas>
+    <h1 style="font-family: 'Press Start 2P', monospace; font-size: 500%; color: #fff;">星环矿工</h1>
+    <p style="font-family: 'Press Start 2P', monospace; color: #fff;">Miner of the Earth Ring</p>
+    <div style="flex: 0.3;"></div>
+    <button data-action="new-game">新游戏</button>
+    <button data-action="continue">继续</button>
+    <button data-action="settings" data-action-arg="main-menu">设置</button>
+    <button data-action="exit">退出</button>
+  </div>
+
+  <!-- ========== INTRO ========== -->
+  <div class="screen" id="intro-screen">
+    <div class="phone-frame">
+      <div class="phone-header">消息</div>
+      <div class="sms-bubble" id="sms1">
+        <div class="sender">特没谱金融信贷专员 斯马克</div>
+        <div>您的学生贷款已逾期6个月，AI自动为您申请了星环矿工的岗位，入职后，您收入的50%将被用于偿还您的债务。</div>
+        <div>对这个岗位不满意？<span class="link" data-action="intro-link" data-action-arg="抱歉，志愿者已满！">绿色长生基金会</span>正在有偿招募试药志愿者。</div>
+      </div>
+      <div class="sms-bubble" id="sms2">
+        <div class="sender">星环矿业</div>
+        <div>恭喜您通过审核，立刻点击链接领取前往内1环A区的船票，成为星环矿工。</div>
+        <div>北美星环矿业欢迎您的到来，祝您工作顺利。</div>
+        <div class="action-btn" data-action="intro-accept">立刻入职</div>
+      </div>
+    </div>
+    <div class="intro-skip" data-action="intro-skip">跳过 &gt;&gt;</div>
+  </div>
+
+  <!-- ========== DESKTOP (Hangar) ========== -->
+  <div class="screen" id="desktop-screen">
+
+    <!-- Desktop Icons -->
+    <div class="desktop-icons">
+      <div class="desktop-icon" data-action="open-window" data-action-arg="warehouse">
+        <div class="icon-img">📦</div><div class="icon-label">仓库</div>
+      </div>
+      <div class="desktop-icon" data-action="open-window" data-action-arg="upgrade">
+        <div class="icon-img">🔧</div><div class="icon-label">升级</div>
+      </div>
+      <div class="desktop-icon" data-action="open-window" data-action-arg="mail">
+        <div class="icon-img">📧</div><div class="icon-label">邮件</div>
+      </div>
+      <div class="desktop-icon locked" id="radio-icon" data-action="open-window" data-action-arg="radio">
+        <div class="icon-img">📻</div><div class="icon-label">收音机</div>
+      </div>
+      <div class="desktop-icon" data-action="open-window" data-action-arg="omazon">
+        <div class="icon-img">🛒</div><div class="icon-label">0mazon</div>
+      </div>
+      <div class="desktop-icon" id="underground-icon" data-action="open-window" data-action-arg="underground">
+        <div class="icon-img">🏴</div><div class="icon-label">黑市</div>
+      </div>
+      <div class="desktop-icon" data-action="settings" data-action-arg="desktop-screen">
+        <div class="icon-img">⚙️</div><div class="icon-label">设置</div>
+      </div>
+    </div>
+
+    <!-- Work Area Selection Panel -->
+    <div class="window work-panel-window">
+      <div class="title-bar">
+        <div class="title-bar-text">📋 选择工作区域</div>
+      </div>
+      <div class="window-body">
+        <div class="work-area-list" id="area-list"></div>
+        <button id="go-work-btn" data-action="go-to-work" style="width:100%">🚀 出发</button>
+      </div>
+    </div>
+
+    <!-- Taskbar -->
+    <div class="taskbar">
+      <button class="start-btn" data-action="toggle-start-menu">🪐 星环OS</button>
+      <span class="tb-debt" id="tb-debt">债务: ¥128,000</span>
+      <span class="tb-btc" id="tb-btc">₿ 12,450</span>
+      <span class="tb-cash" id="tb-cash">💵 3,200</span>
+      <span class="clock" id="desktop-clock">08:42</span>
+    </div>
+
+    <!-- Start Menu -->
+    <div class="start-menu" id="start-menu" style="display:none;">
+      <div class="start-menu-sidebar">
+        <span>THE RING OS</span>
+      </div>
+      <div class="start-menu-items">
+        <div class="start-menu-item">
+          <span class="start-menu-icon">⛏</span>
+          <span>Miner 4527</span>
+        </div>
+        <div class="start-menu-sep"></div>
+        <div class="start-menu-item" data-action="start-settings">
+          <span class="start-menu-icon">⚙️</span>
+          <span>设置</span>
+        </div>
+        <div class="start-menu-sep"></div>
+        <div class="start-menu-item" data-action="power-off">
+          <span class="start-menu-icon">◉</span>
+          <span>关机…</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Start Menu backdrop (click to close) -->
+    <div class="start-menu-backdrop" id="start-menu-backdrop" style="display:none;" data-action="toggle-start-menu"></div>
+  </div>
+
+  <!-- ========== COMBAT ========== -->
+  <div class="screen" id="combat-screen">
+    <div id="combat-hud-top">
+      <div class="hud-row">
+        <div class="hud-block">
+          <span class="hud-label">HP</span>
+          <div class="hud-bar-bg"><div class="hud-bar-fill hp-fill" id="hud-hp-fill"></div></div>
+          <span class="hud-val" id="hud-hp-val">5/5</span>
+        </div>
+        <div class="hud-block">
+          <span class="hud-label">FUEL</span>
+          <div class="hud-bar-bg"><div class="hud-bar-fill fuel-fill" id="hud-fuel-fill"></div></div>
+          <span class="hud-val" id="hud-fuel-val">100%</span>
+        </div>
+        <div class="hud-block hud-grow">
+          <span class="hud-wave" id="hud-wave">矿区边缘 1/7</span>
+          <span class="hud-wave-sub" id="hud-wave-sub">ENEMIES: 0</span>
+        </div>
+        <div class="hud-block hud-grow">
+          <span class="hud-resource" id="hud-resource">资源: 0/30</span>
+        </div>
+        <div class="hud-btns">
+          <button id="hud-btn-evac" data-action="try-evacuate">撤离</button>
+          <button id="hud-btn-pause" data-action="toggle-pause">暂停</button>
+          <button id="hud-btn-cargo" data-action="open-combat-inv">货舱</button>
+        </div>
+      </div>
+    </div>
+    <div id="combat-battlefield">
+      <canvas id="combat-canvas"></canvas>
+    </div>
+    <div id="combat-hud-bottom">
+      <div class="hud-row">
+        <div class="hud-block">
+          <span class="hud-label">AMMO</span>
+          <span id="hud-ammo"></span>
+        </div>
+        <div class="hud-block hud-grow"></div>
+        <div class="hud-block" id="hud-quick-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SETTLEMENT ========== -->
+  <div class="screen" id="settlement-screen">
+    <div class="window" style="width:300px;">
+      <div class="title-bar"><div class="title-bar-text" id="settle-title">工资单</div></div>
+      <div class="window-body">
+      <div class="field-row"><label>击败敌人</label><span id="settle-kills">0</span></div>
+      <div class="field-row"><label>命中次数</label><span id="settle-hits">0</span></div>
+      <div class="field-row"><label>命中率</label><span id="settle-acc">--</span></div>
+      <div class="field-row"><label>矿物出售</label><span id="settle-loot">+₿ 0</span></div>
+      <div class="field-row"><label>还债扣除</label><span id="settle-debt">-₿ 0</span></div>
+      <div id="settle-penalties"></div>
+      <div class="field-row"><label>净收入</label><span id="settle-net">+₿ 0</span></div>
+      <div class="field-row"><label>剩余债务</label><span id="settle-remaining">¥ 128,000</span></div>
+      <button data-action="return-to-hangar">返回机库</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SETTINGS ========== -->
+  <div class="screen" id="settings-screen" style="background:#c0c0c009;">
+    <div class="window" style="width: 50%; height: 50%;">
+      <div class="title-bar">
+        <div class="title-bar-text">⚙️ 设置</div>
+        <div class="title-bar-controls">
+          <button aria-label="Close" data-action="close-settings"></button>
+        </div>
+      </div>
+      <div class="window-body">
+      <menu role="tablist">
+        <li role="tab" aria-selected="true" data-tab="game" data-action="switch-settings-tab" data-action-arg="game"><a href="#settings">游戏</a></li>
+        <li role="tab" data-tab="control" data-action="switch-settings-tab" data-action-arg="control"><a href="#settings">操作</a></li>
+        <li role="tab" data-tab="debug" data-action="switch-settings-tab" data-action-arg="debug"><a href="#settings">调试</a></li>
+      </menu>
+      <div role="tabpanel" class="window">
+        <div role="tabpanel" id="settings-tab-game">
+          <div class="field-row"><label>主音量</label><input type="range" min="0" max="100" value="80" data-action="set-volume" data-action-arg="master"></div>
+          <div class="field-row"><label>音效音量</label><input type="range" min="0" max="100" value="90" data-action="set-volume" data-action-arg="sfx"></div>
+          <div class="field-row"><label>CRT 滤镜</label><input type="range" min="0" max="100" value="80"></div>
+          <div class="field-row">
+            <label>界面缩放</label>
+            <span>
+              <button class="button-min" data-action="adjust-ui-scale" data-action-arg="-10">−</button>
+              <span id="ui-scale-val" style="padding: 0 8px;">100%</span>
+              <button class="button-min" data-action="adjust-ui-scale" data-action-arg="10">+</button>
+            </span>
+          </div>
+          <div class="field-row"><label>语言</label><select><option>简体中文</option><option>English</option></select></div>
+          <div class="field-row"><label>桌面助手</label><select id="clippy-agent-select" data-action="switch-clippy"><option value="Clippy">📎 Clippy</option><option value="Merlin">🧙 Merlin</option><option value="Bonzi">🟣 Bonzi</option><option value="F1">🤖 F1</option><option value="Genie">🧞 Genie</option><option value="Genuis">🎓 Genuis</option><option value="Links">🐱 Links</option><option value="Peedy">🦜 Peedy</option><option value="Rocky">🐶 Rocky</option><option value="Rover">🐕 Rover</option></select></div>
+        </div>
+        <div role="tabpanel" id="settings-tab-control" style="display:none;">
+          <div class="field-row"><label>发射按键</label><span>鼠标左键</span></div>
+          <div class="field-row"><label>暂停按键</label><span>ESC</span></div>
+          <div class="field-row"><label>背包按键</label><span>Tab</span></div>
+        </div>
+        <div role="tabpanel" id="settings-tab-debug" style="display:none;">
+          <div class="field-row">
+            <label>解锁全部功能</label>
+            <button data-action="unlock-all">解锁</button>
+          </div>
+          <div class="field-row">
+            <label>获得随机道具</label>
+            <button data-action="give-random-item">获取</button>
+          </div>
+          <div class="field-row">
+            <label>清空缓存并回到标题</label>
+            <button data-action="clear-reset">重置</button>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /#crt-content -->
+</div><!-- /#app -->
+
+<!-- Game Scripts (ES modules — single entry point) -->
+<script type="module" src="dist/js/main.js"></script>
+
+<!-- Clippy.js -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/smore-inc/clippy.js/build/clippy.min.js"></script>
+<script>
+    // Fix protocol-relative BASE_PATH for file:// origins
+    clippy.BASE_PATH = 'https://cdn.jsdelivr.net/gh/smore-inc/clippy.js/agents/';
+</script>
+</body>
+</html>

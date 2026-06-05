@@ -1,0 +1,203 @@
+/* ============================================================
+   COMPONENTS.CSS — only what 98.css doesn't cover.
+   ============================================================ */
+
+/* === DESKTOP (Win95 authentic, not in 98.css) === */
+#desktop-screen { flex-direction: column; background: #008080; position: relative; }
+
+/* Desktop Icons */
+.desktop-icons { position: absolute; top: 8px; left: 8px; display: flex; flex-direction: column; gap: 4px; z-index: 10; }
+.desktop-icon { 
+   display: flex; 
+   flex-direction: column; 
+   align-items: center; 
+   gap: 2px; 
+   cursor: pointer; 
+   padding: 12px 6px; 
+   width: 64px; 
+   height: 64px;
+   text-align: center; 
+}
+.icon-img { scale: 1.2; }
+.desktop-icon:hover { background: rgba(7, 7, 253, 0.329); }
+.desktop-icon:hover .icon-label { color: #fff; }
+.desktop-icon .icon-label { color: #fff; }
+.desktop-icon.locked { opacity: 0.4; pointer-events: none; }
+.desktop-icon.locked:hover { background: transparent; }
+.desktop-icon.hidden { display: none; }
+
+/* Work Panel */
+.work-panel-window { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 10; min-width: 260px; max-width: 320px; }
+.work-area-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.work-area-item { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px; cursor: pointer; }
+.work-area-item:not(.selected):not(.locked):hover { background: #e0e0e0; }
+.work-area-item.selected { background: #000080a8; color: #fff; }
+.work-area-item.selected::before { content: '▶ '; }
+.work-area-item.locked { opacity: 0.4; pointer-events: none; }
+
+/* Taskbar */
+.taskbar { position: absolute; bottom: 0; left: 0; right: 0; height: 28px; background: #c0c0c0; border-top: 2px solid #fff; display: flex; align-items: center; padding: 0 4px; gap: 4px; z-index: 100; }
+.taskbar .clock { margin-left: auto; padding: 0 8px; border: 2px inset #fff; }
+.taskbar .tb-debt, .taskbar .tb-btc, .taskbar .tb-cash { padding: 1px 4px; border: 2px inset #fff; }
+
+/* Start Menu */
+.start-menu-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 99; }
+.start-menu { position: absolute; bottom: 28px; left: 4px; z-index: 101; display: flex; background: #c0c0c0; border: 2px solid; border-color: #fff #808080 #808080 #fff; }
+.start-menu-sidebar { width: 26px; background: #808080; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; }
+.start-menu-sidebar span { writing-mode: vertical-rl; text-orientation: mixed; color: #c0c0c0; transform: rotate(180deg); }
+.start-menu-items { display: flex; flex-direction: column; padding: 4px 0; min-width: 160px; }
+.start-menu-item { display: flex; align-items: center; gap: 10px; padding: 6px 24px 6px 8px; cursor: pointer; }
+.start-menu-item:hover { background: #000080; color: #fff; }
+.start-menu-icon { width: 24px; text-align: center; flex-shrink: 0; }
+.start-menu-sep { height: 2px; margin: 3px 4px; border-top: 1px solid #808080; border-bottom: 1px solid #fff; }
+
+/* === WINDOW OVERLAY === */
+.window-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: flex; align-items: center; justify-content: center; }
+.window-overlay .window { width: calc(100% - 16px); height: calc(100% - 36px); max-width: none; max-height: none; display: flex; flex-direction: column; }
+.window-overlay .window-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+
+
+#combat-hud-top { background: #c0c0c0; border-bottom: 2px solid #808080; padding: 2px 4px; z-index: 20; }
+#combat-hud-bottom { background: #c0c0c0; border-top: 2px solid #fff; padding: 2px 4px; z-index: 20; }
+#combat-battlefield { flex: 1; position: relative; overflow: hidden; }
+#combat-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+
+.hud-row { display: flex; align-items: center; gap: 8px; }
+.hud-block { display: flex; align-items: center; gap: 4px; }
+.hud-block.hud-grow { flex: 1; }
+.hud-label { min-width: 30px; }
+.hud-val { min-width: 36px; }
+.hud-bar-bg { width: 70px; height: 12px; border: 1px inset #fff; background: #fff; position: relative; }
+.hud-bar-fill { height: 100%; }
+.hud-bar-fill.hp-fill { background: #c00; }
+.hud-bar-fill.fuel-fill { background: #00c; }
+.hud-btns { display: flex; gap: 3px; }
+
+#hud-ammo { display: flex; gap: 4px; }
+.hud-ammo-dot { width: 8px; height: 8px; border-radius: 50%; }
+.hud-ammo-dot.filled { background: #00f; border: 1px solid #000; }
+.hud-ammo-dot.empty { background: #fff; border: 1px solid #808080; }
+
+#hud-quick-bar { display: flex; gap: 4px; }
+.hud-quick-slot { width: 42px; height: 28px; background: #fff; border: 2px inset #fff; display: flex; align-items: center; justify-content: center; position: relative; }
+.hud-quick-slot .slot-qty { position: absolute; bottom: 1px; right: 2px; }
+.hud-quick-slot.empty { opacity: 0.3; }
+
+/* === OVERLAYS (game-specific) === */
+.pause-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.5); z-index: 300; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.evac-confirm-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.5); z-index: 310; display: flex; align-items: center; justify-content: center; }
+
+/* === INVENTORY / SHOP LAYOUT (flex & grid only) === */
+.inv-layout { display: flex; gap: 1px; flex: 1; min-height: 0; }
+.inv-left { flex: 1 1 60%; display: flex; flex-direction: column; min-height: 0; padding-right: 6px; border-right: 1px solid #808080; box-shadow: 1px 0 0 #fff; }
+.inv-right { flex: 1 1 40%; display: flex; flex-direction: column; overflow-y: auto; padding-left: 6px; }
+
+.inv-section-title { margin: 4px 0; }
+.inv-currency { display: flex; gap: 12px; margin-bottom: 4px; }
+.inv-currency .cur-item { display: flex; align-items: center; gap: 4px; }
+
+/* === CELLS (98.css sunken borders shared across all cell types) === */
+.equip-slots { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
+.equip-slot { width: 48px; height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid; border-color: #808080 #fff #fff #808080; background: #fff; cursor: pointer; position: relative; }
+.equip-slot.selected { background: #000080; color: #fff; }
+.equip-slot.selected .slot-name { color: #fff; }
+.equip-slot.locked-slot { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+.equip-slot .slot-name { max-width: 40px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Quality dot (shared positioning across all cell types) */
+.equip-slot .quality-dot,
+.cargo-cell .cell-quality-dot,
+.shop-cell .cell-quality-dot { position: absolute; top: 1px; right: 1px; width: 5px; height: 5px; border-radius: 50%; }
+
+/* Quality colors (data visualization, not in 98.css) */
+.quality-common { background: #888; }
+.quality-rare { background: #48f; }
+.quality-epic { background: #a3f; }
+.quality-legend { background: #f80; }
+.quality-mythic { background: #f33; }
+.q-common { color: #666; } .q-rare { color: #48f; } .q-epic { color: #a3f; } .q-legend { color: #f80; } .q-mythic { color: #f33; }
+
+/* Quick Bar */
+.quick-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 4px; }
+.quick-slot { width: 44px; height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid; border-color: #808080 #fff #fff #808080; background: #fff; cursor: pointer; position: relative; }
+.quick-slot.selected { background: #000080; color: #fff; }
+.quick-slot.selected .qk-name { color: #fff; }
+.quick-slot.empty { opacity: 0.3; }
+.quick-slot .qk-qty { position: absolute; bottom: 1px; right: 2px; }
+.quick-slot .qk-name { max-width: 38px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Grid cells */
+.cargo-grid, .shop-grid { flex: 1; align-content: start; display: grid; grid-template-columns: repeat(6,1fr); gap: 2px; margin-bottom: 4px; grid-auto-rows: 52px; min-height: 0; overflow-y: auto; }
+.cargo-cell, .shop-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid; border-color: #808080 #fff #fff #808080; background: #fff; cursor: pointer; position: relative; overflow: hidden; padding: 2px; }
+.cargo-cell.selected, .shop-cell.selected { background: #000080; color: #fff; }
+.cargo-cell.selected .cell-name, .shop-cell.selected .cell-name { color: #fff; }
+.cargo-cell .cell-qty,
+.shop-cell .cell-price { position: absolute; bottom: 1px; right: 2px; }
+.cargo-cell .cell-name, .shop-cell .cell-name { max-width: 48px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+
+/* === BLACK MARKET ORDERS === */
+.ug-orders-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; min-height: 0; }
+.ug-order-cell { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 2px solid; border-color: #808080 #fff #fff #808080; background: #fff; cursor: pointer; }
+.ug-order-cell:hover { background: #e0e0e0; }
+.ug-order-cell.selected { background: #000080; color: #fff; }
+.ug-order-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ug-order-reward,
+.ug-order-status { flex-shrink: 0; white-space: nowrap; }
+
+/* Filter bar */
+.inv-filter-bar { display: flex; gap: 3px; flex-wrap: wrap; align-items: center; }
+
+/* === COMBAT SCREEN (game-specific HUD, not in 98.css) === */
+#combat-screen { flex-direction: column; background: #000; }
+
+/* Pagination */
+.inv-pagination { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 4px; flex-shrink: 0; }
+
+/* === DETAIL PANEL (layout only — visual by 98.css: .field-row, .sunken-panel, <p>) === */
+.detail-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.detail-info { flex: 1; }
+.detail-name { font-weight: bold; }
+.detail-stat-list { display: flex; flex-direction: column; gap: 2px; margin: 4px 0; }
+.detail-spacer { flex: 1; }
+.detail-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+
+/* === MAIL === */
+.mail-item { padding: 5px 8px; cursor: pointer; border-bottom: 1px solid #808080; }
+.mail-item:last-child { border-bottom: none; }
+.mail-item:hover { background: #000080; color: #fff; }
+.mail-detail { padding: 4px 0; }
+.mail-full { line-height: 1.6; white-space: pre-line; }
+
+/* === RADIO === */
+.window-overlay .window.window-radio { width: 370px; height: auto; max-height: 560px; }
+.radio-deck { display: flex; flex-direction: column; background: #3a3a3a; padding: 10px; border: 2px inset #fff; }
+/* LCD frequency display */
+.radio-lcd { display: flex; align-items: baseline; justify-content: center; gap: 8px; background: #1a2a1a; border: 3px inset #555; padding: 8px 16px; margin-bottom: 8px; }
+.radio-lcd-label { color: #5a5; font-family: 'Press Start 2P', monospace; font-size: 10px; }
+.radio-lcd-value { color: #0f0; font-family: 'Courier New', monospace; font-size: 36px; font-weight: bold; letter-spacing: 4px; text-shadow: 0 0 8px rgba(0,255,0,.4); }
+/* Stereo level meters */
+.radio-meters { margin-bottom: 10px; }
+.radio-meter { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+.radio-meter-label { color: #0f0; font-family: 'Press Start 2P', monospace; font-size: 9px; width: 14px; }
+.radio-meter-bar { flex: 1; height: 10px; background: #111; border: 1px solid #555; }
+.radio-meter-fill { height: 100%; background: #0f0; }
+.radio-meter-db { display: flex; justify-content: space-between; padding: 0 20px 0 20px; color: #0a0; font-size: 8px; font-family: 'Press Start 2P', monospace; margin-top: 1px; margin-bottom: 6px; }
+/* Transport controls */
+.radio-controls { display: flex; justify-content: center; gap: 3px; margin-bottom: 10px; }
+.radio-controls button { min-width: 36px; padding: 2px 0; }
+.radio-btn-rec { color: #c00 !important; }
+/* Broadcast text */
+.radio-broadcast { border: 2px inset #fff; background: #000; padding: 8px; max-height: 160px; overflow-y: auto; }
+.radio-station { color: #0f0; font-family: 'Press Start 2P', monospace; text-align: center; margin-bottom: 6px; font-size: 10px; }
+.radio-broadcast p { color: #0c0; margin: 3px 0; line-height: 1.5; }
+
+/* === SETTINGS SCREEN === */
+#settings-screen .field-row > label { width: 28%; flex-shrink: 0; text-align: right; padding-right: 8px; white-space: nowrap; }
+#settings-screen .button-min { min-width: unset; width: auto; padding: 0 8px; }
+
+/* === UPGRADE CANVAS (game-specific) === */
+.window-upgrade .window-body { position: relative; padding: 0; overflow: hidden; }
+#upgrade-canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+#upgrade-canvas:active { cursor: grabbing; }
+.upgrade-float { position: absolute; right: 10px; top: 10px; width: 200px; background: #c0c0c0; border: 2px solid; border-color: #fff #808080 #808080 #fff; padding: 8px; z-index: 10; display: none; flex-direction: column; gap: 6px; }
+.upgrade-float.visible { display: flex; }
