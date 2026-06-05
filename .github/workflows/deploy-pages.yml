@@ -39,20 +39,19 @@ jobs:
       - name: Build TypeScript
         run: npm run build
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
       - name: Prepare publish directory
         run: |
           mkdir _site
           cp index.html _site/
           cp -r css _site/
           cp -r dist _site/
+          echo "=== _site contents ==="
+          find _site -type f | sort
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _site/
+          path: _site
 
   # Deployment job
   deploy:
