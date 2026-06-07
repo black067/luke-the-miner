@@ -3,11 +3,11 @@
 
 setcps(0.7)
 
-// 稀疏鼓点 — 太空脉冲（用 noise 替代 tr808 采样）
-$: s("[white ~ ~ ~, ~ ~ white ~, ~ ~ white [white white]]")
-  .gain(.18)
-  .dec(.08)
-  .room(.4)
+// 稀疏鼓点 — 太空脉冲
+$: s("[bd ~ ~ ~, ~ ~ hh ~, ~ ~ sd [hh hh]]")
+  .bank("tr808")
+  .gain(.4)
+  .room(.5)
 
 // 引擎低音 — 深沉脉冲推进
 $: note("<c2 ~ eb2 ~, f2 ~ ab2 ~, g2 ~ bb2 ~, c2 ~ eb2 ~>")

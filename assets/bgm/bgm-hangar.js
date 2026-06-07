@@ -3,10 +3,9 @@
 
 setcps(0.5)
 
-// 小沙锤轻摇（用 noise 替代采样）
-$: s("[white ~ ~ ~]")
-  .gain(.06)
-  .dec(.05)
+// 小沙锤轻摇
+$: s("[shaker_small ~ ~ ~]")
+  .gain(.12)
   .room(.35)
 
 // 温暖和弦垫 — FM电钢质感
