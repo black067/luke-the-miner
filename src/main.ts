@@ -120,11 +120,15 @@ function initEventDelegation(): void {
 
     switch (action) {
       case 'new-game':
+        UI.startup();
         localStorage.removeItem(SAVE_KEY);
         dispatch({ type: 'RESET_GAME' });
         showIntro();
         break;
-      case 'continue': showDesktop(); break;
+      case 'continue':
+        UI.startup();
+        showDesktop();
+        break;
       case 'settings': showSettings(arg || 'main-menu'); break;
       case 'exit': UI.click(); document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#5a5;font-family:\'Press Start 2P\',monospace;font-size:14px;">SYSTEM OFFLINE</div>'; break;
       case 'intro-link': if (arg) showToast(arg); break;
@@ -221,7 +225,6 @@ const App = {
       initNewGame();
     }
     showScreen('main-menu');
-    setTimeout(() => UI.startup(), 300);
     _initMenuStars();
     // Hover sounds — only fire once when entering a new interactive element
     let _lastHoverTarget: Element | null = null;

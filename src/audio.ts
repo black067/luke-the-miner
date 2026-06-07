@@ -14,39 +14,41 @@ function _noiseBuf(ctx: AudioContext, dur: number): AudioBuffer {
     return buf;
 }
 
+/** Shared AudioContext — created once on first use, shared by all audio modules. */
+let _sharedCtx: AudioContext | null = null;
+function _getSharedCtx(): AudioContext | null {
+    if (!_sharedCtx) {
+        try { _sharedCtx = new (window.AudioContext || (window as any).webkitAudioContext)(); }
+        catch (_e) { /* Web Audio unavailable */ }
+    }
+    if (_sharedCtx && _sharedCtx.state === 'suspended') {
+        _sharedCtx.resume();
+    }
+    return _sharedCtx;
+}
+
 /* ============================================================
    SFX — Combat sound effects (Web Audio API)
    Same volume pipeline as UI sounds so loudness is consistent.
    ============================================================ */
 export const SFX: {
-    _ctx: AudioContext | null;
     initialized: boolean;
     init(): void;
-    _ensureCtx(): AudioContext | null;
     _vol(): number;
     play(key: string, useMutate?: boolean): void;
     setVolume(_pct: number): void;
 } = {
-    _ctx: null as AudioContext | null,
     initialized: false,
     init() {
         if (this.initialized) return;
         UI.init();
         this.initialized = true;
     },
-    _ensureCtx() {
-        if (!this._ctx) {
-            try { this._ctx = new (window.AudioContext || (window as any).webkitAudioContext)(); }
-            catch (e) { /* Web Audio unavailable */ }
-        }
-        if (this._ctx && this._ctx.state === 'suspended') this._ctx.resume();
-        return this._ctx;
-    },
     _vol() { return (GS.settings.sfxVolume / 100) * (GS.settings.masterVolume / 100); },
 
     play(key: string, useMutate: boolean = true) {
         if (!this.initialized) this.init();
-        const ctx = this._ensureCtx();
+        const ctx = _getSharedCtx();
         if (!ctx) return;
         const v = this._vol();
         if (v <= 0) return;
@@ -297,10 +299,8 @@ export const SFX: {
    Zero external dependencies, ~1KB, works offline.
    ============================================================ */
 export const UI: {
-  _ctx: AudioContext | null;
   _initialized: boolean;
   init(): void;
-  _ensureCtx(): AudioContext | null;
   _vol(): number;
   click(): void;
   hover(): void;
@@ -312,31 +312,16 @@ export const UI: {
   shutdown(): void;
   action(): void;
 } = {
-    _ctx: null as AudioContext | null,
     _initialized: false,
     init() {
         if (this._initialized)
             return;
-        // Defer AudioContext creation to first user gesture (browser policy)
         this._initialized = true;
-    },
-    _ensureCtx() {
-        if (!this._ctx) {
-            try {
-                this._ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-            }
-            catch (e) { /* Web Audio unavailable */ }
-        }
-        // Resume if suspended (browser autoplay policy)
-        if (this._ctx && this._ctx.state === 'suspended') {
-            this._ctx.resume();
-        }
-        return this._ctx;
     },
     _vol() { return (GS.settings.sfxVolume / 100) * (GS.settings.masterVolume / 100); },
     /** Short sine-wave click — button presses, selections */
     click() {
-        const ctx = this._ensureCtx();
+        const ctx = _getSharedCtx();
         if (!ctx)
             return;
         const v = this._vol();
@@ -357,7 +342,7 @@ export const UI: {
     },
     /** Subtle tick for hover / focus changes */
     hover() {
-        const ctx = this._ensureCtx();
+        const ctx = _getSharedCtx();
         if (!ctx)
             return;
         const v = this._vol();
@@ -377,7 +362,7 @@ export const UI: {
     },
     /** Ascending two-tone chime — window / menu open */
     open() {
-        const ctx = this._ensureCtx();
+        const ctx = _getSharedCtx();
         if (!ctx)
             return;
         const v = this._vol();
@@ -400,7 +385,7 @@ export const UI: {
     },
     /** Descending two-tone chime — window / menu close */
     close() {
-        const ctx = this._ensureCtx();
+        const ctx = _getSharedCtx();
         if (!ctx)
             return;
         const v = this._vol();
@@ -423,7 +408,7 @@ export const UI: {
     },
     /** Error / warning buzz */
     error() {
-        const ctx = this._ensureCtx();
+        const ctx = _getSharedCtx();
         if (!ctx)
             return;
         const v = this._vol();
@@ -443,7 +428,7 @@ export const UI: {
     },
     /** Pleasant notification ding — new mail, toast */
     notify() {
-        const ctx = this._ensureCtx();
+        const ctx = _getSharedCtx();
         if (!ctx)
             return;
         const v = this._vol();
@@ -466,7 +451,7 @@ export const UI: {
     },
     /** Ascending arpeggio — game start, boot into desktop */
     startup() {
-        const ctx = this._ensureCtx();
+        const ctx = _getSharedCtx();
         if (!ctx)
             return;
         const v = this._vol();
@@ -489,7 +474,7 @@ export const UI: {
     },
     /** Descending tone — power off / shutdown */
     shutdown() {
-        const ctx = this._ensureCtx();
+        const ctx = _getSharedCtx();
         if (!ctx)
             return;
         const v = this._vol();
@@ -512,7 +497,7 @@ export const UI: {
     },
     /** Deep action confirm — go to work / embark */
     action() {
-        const ctx = this._ensureCtx();
+        const ctx = _getSharedCtx();
         if (!ctx)
             return;
         const v = this._vol();
@@ -540,7 +525,6 @@ export const UI: {
    Tracks: 'combat' → bgm-0.wav, 'hangar' → bgm-hangar-0.wav
    ============================================================ */
 export const BGM: {
-    _ctx: AudioContext | null;
     _gain: GainNode | null;
     _source: AudioBufferSourceNode | null;
     _buffers: Record<string, AudioBuffer>;
@@ -554,7 +538,6 @@ export const BGM: {
     stop(): void;
     updateVolume(): void;
 } = {
-    _ctx: null,
     _gain: null,
     _source: null,
     _buffers: {},
@@ -566,9 +549,8 @@ export const BGM: {
     async init() {
         if (this._loaded || this._loading) return;
         this._loading = true;
-        try {
-            this._ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-        } catch (_e) {
+        const ctx = _getSharedCtx();
+        if (!ctx) {
             this._loading = false;
             return;
         }
@@ -586,13 +568,11 @@ export const BGM: {
             }
         }
 
-        if (this._ctx) {
-            this._gain = this._ctx.createGain();
-            const mv = GS.settings.masterVolume ?? 80;
-            const bv = GS.settings.bgmVolume ?? 80;
-            this._gain.gain.value = (mv / 100) * (bv / 100);
-            this._gain.connect(this._ctx.destination);
-        }
+        this._gain = ctx.createGain();
+        const mv = GS.settings.masterVolume ?? 80;
+        const bv = GS.settings.bgmVolume ?? 80;
+        this._gain.gain.value = (mv / 100) * (bv / 100);
+        this._gain.connect(ctx.destination);
 
         this._loaded = true;
         this._loading = false;
@@ -609,7 +589,9 @@ export const BGM: {
         const resp = await fetch(url);
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const arrayBuf = await resp.arrayBuffer();
-        return this._ctx!.decodeAudioData(arrayBuf);
+        const ctx = _getSharedCtx();
+        if (!ctx) throw new Error('AudioContext unavailable');
+        return ctx.decodeAudioData(arrayBuf);
     },
 
     play(track: string) {
@@ -621,16 +603,17 @@ export const BGM: {
             if (!this._loading) this.init();
             return;
         }
-        if (!this._ctx || !this._gain) return;
+        const ctx = _getSharedCtx();
+        if (!ctx || !this._gain) return;
 
         this.stop();
 
         const buffer = this._buffers[track];
         if (!buffer) return;
 
-        if (this._ctx.state === 'suspended') this._ctx.resume();
+        if (ctx.state === 'suspended') ctx.resume();
 
-        const source = this._ctx.createBufferSource();
+        const source = ctx.createBufferSource();
         source.buffer = buffer;
         source.loop = true;
         source.connect(this._gain);
