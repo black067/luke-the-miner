@@ -28,7 +28,7 @@ export function getMailBody(): string {
     }
     return DATA.MAILS.map((m, i) => {
         const isUnread = !GS.mailsRead[m.id];
-        const unreadStyle = isUnread ? ' style="font-weight:bold"' : '';
+        const unreadStyle = isUnread ? '' : ''; // TODO: DO NOT USE STYLE FOR THIS, ADD A RED DOT OR SOMETHING
         return `<div class="mail-item"${unreadStyle} onclick="setMailSelected(${i});refreshWindowBody('mail')">
       <div class="mail-from">${m.from}</div>
       <div>${m.subject}</div>

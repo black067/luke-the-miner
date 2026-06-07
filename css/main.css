@@ -90,7 +90,6 @@ body { display: flex; align-items: center; justify-content: center; }
 }
 .sms .from {
   display: block;
-  font-weight: bold;
   color: #1a5c1a;
   margin-bottom: 4px;
 }

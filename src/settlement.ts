@@ -145,7 +145,7 @@ export function showSettlement(result: string, stats: CombatStats, areaId: strin
         sub: `没把活干完就走？你不干有的是人干！`,
     };
     banner.textContent = cfg.text;
-    banner.setAttribute('style', `text-align:center;font-weight:bold;padding:6px 0;background:${cfg.bg};color:${cfg.color};margin-bottom:6px;`);
+    banner.setAttribute('style', `text-align:center;padding:6px 0;background:${cfg.bg};color:${cfg.color};margin-bottom:6px;`);
     subtitle.textContent = cfg.sub;
 
     // ── Stats ledger ──
@@ -274,7 +274,6 @@ function addLedgerRow(parent: HTMLElement, label: string, value: string, cls: st
         li.style.borderTop = '1px solid #808080';
         li.style.paddingTop = '2px';
         li.style.marginTop = '2px';
-        li.style.fontWeight = 'bold';
     }
     const spanLabel = document.createElement('span');
     spanLabel.textContent = label;
