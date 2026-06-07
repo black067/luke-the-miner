@@ -237,7 +237,7 @@
 .settle-window {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 70%;
   height: 100%;
 }
 .settle-body {

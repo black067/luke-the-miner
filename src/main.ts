@@ -123,6 +123,7 @@ function initEventDelegation(): void {
         UI.startup();
         localStorage.removeItem(SAVE_KEY);
         dispatch({ type: 'RESET_GAME' });
+        applyUIScale();
         showIntro();
         break;
       case 'continue':

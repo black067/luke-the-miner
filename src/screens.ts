@@ -51,7 +51,7 @@ export function showToast(msg: string): void {
     const t = document.createElement('div');
     t.className = 'toast';
     t.textContent = msg;
-    document.getElementById('app')!.appendChild(t);
+    document.getElementById('crt-content')!.appendChild(t);
     setTimeout(() => t.remove(), 2500);
 }
 
