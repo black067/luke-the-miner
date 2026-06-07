@@ -18,8 +18,8 @@ export interface UpgradeCost { materials?: Array<{ id: string; qty: number }>; b
 export interface UpgradeEffect { hp?: number; fuel?: number; speed?: number; cargo?: number; accSlot?: number; special?: string; }
 export interface UpgradeNode { id: string; label: string; cost: UpgradeCost; effect: UpgradeEffect; req: string | null; desc?: string; }
 export interface UpgradeBranch { name: string; icon: string; description: string; nodes: UpgradeNode[]; }
-export type EnemyBehavior = 'hover' | 'zigzag' | 'static' | 'dive' | 'boss';
-export type EnemyShape = 'diamond' | 'hexagon';
+export type EnemyBehavior = 'hover' | 'zigzag' | 'static' | 'dive' | 'boss' | 'chase' | 'drift' | 'orbital';
+export type EnemyShape = 'diamond' | 'hexagon' | 'circle' | 'square' | 'rect';
 export interface EnemyDef { id: string; name: string; icon: string; hp: number; dmg: number; speed: number; w: number; h: number; behavior: EnemyBehavior; desc: string; mechanic?: string; shape: EnemyShape; fillColor: string; detailColor: string; strokeColor?: string; flashColor?: string; showHpBar?: boolean; }
 export interface WaveGroup { type: string; count: number; interval: number; }
 export interface WaveDef { index: number; name: string; boss?: boolean; enemies: WaveGroup[]; }

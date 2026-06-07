@@ -213,6 +213,17 @@ export function drawEnemies(): void {
                 const a = i * Math.PI / 3 - Math.PI / 6, r = e.w / 2;
                 combatCtx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
             }
+        } else if (def.shape === 'circle') {
+            combatCtx.arc(0, 0, e.w / 2, 0, Math.PI * 2);
+        } else if (def.shape === 'square') {
+            const s = Math.min(e.w, e.h) / 2;
+            combatCtx.rect(-s, -s, s * 2, s * 2);
+        } else if (def.shape === 'rect') {
+            // Rotate based on movement direction
+            const angle = Math.atan2(e.vy, e.vx || 0.001);
+            combatCtx.rotate(angle);
+            combatCtx.rect(-e.w / 2, -e.h / 2, e.w, e.h);
+            combatCtx.rotate(-angle);
         } else {
             combatCtx.moveTo(0, -e.h / 2);
             combatCtx.lineTo(e.w / 2, 0);
@@ -235,6 +246,10 @@ export function drawEnemies(): void {
             combatCtx.fillRect(-3, -5, 6, 6);
             combatCtx.fillStyle = '#000';
             combatCtx.fillRect(0, -4, 3, 3);
+        } else if (def.shape === 'circle' || def.shape === 'square' || def.shape === 'rect') {
+            combatCtx.beginPath();
+            combatCtx.arc(0, 0, Math.min(e.w, e.h) * 0.2, 0, Math.PI * 2);
+            combatCtx.fill();
         } else {
             combatCtx.beginPath();
             combatCtx.arc(0, 0, 3, 0, Math.PI * 2);

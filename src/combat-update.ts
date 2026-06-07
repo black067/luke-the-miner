@@ -6,14 +6,33 @@
 import { DATA } from './data.js';
 import { getBallProps, getShipMaxFuel, getShipMaxHP, getShipSpeedMult, getFireInterval, hasMechanic, hasSpecialAbility } from './state.js';
 import { SFX } from './audio.js';
-import { C, COMBAT, VH, WALL } from './combat-state.js';
+import { C, COMBAT, VH, VW, WALL } from './combat-state.js';
 import { norm, rand, clamp, dist, rayRectHit, reflectOnEdge, rayCircleHit } from './combat-math.js';
 import {
     getGunPos, createPinball, processHitEnemy, tryDropLoot,
     spawnParticle, spawnDmgNumber, firePinball, startWave, spawnNextEnemy,
 } from './combat-systems.js';
 import { combatToast } from './combat-ui.js';
-import type { Pinball } from './types.js';
+import type { Pinball, CombatEnemy } from './types.js';
+
+// ============================================================
+// OBB COLLISION HELPER (circle vs oriented bounding box)
+// ============================================================
+
+/** Test circle-vs-OBB using the enemy's velocity direction as rotation. */
+function isCircleVsOBB(cx: number, cy: number, r: number, e: CombatEnemy): boolean {
+    const hw = e.w / 2, hh = e.h / 2;
+    const angle = Math.atan2(e.vy, e.vx || 0.001);
+    const cosA = Math.cos(-angle), sinA = Math.sin(-angle);
+    // Transform circle center to OBB local space
+    const localX = (cx - e.x) * cosA - (cy - e.y) * sinA;
+    const localY = (cx - e.x) * sinA + (cy - e.y) * cosA;
+    // Closest point on AABB to transformed circle center
+    const closestX = clamp(localX, -hw, hw);
+    const closestY = clamp(localY, -hh, hh);
+    const dx = localX - closestX, dy = localY - closestY;
+    return dx * dx + dy * dy < r * r;
+}
 
 // ============================================================
 // UPDATE FUNCTIONS
@@ -86,7 +105,10 @@ export function updatePinballs(dt: number): void {
         // Enemy collisions
         for (let i = C.enemies.length - 1; i >= 0; i--) {
             const e = C.enemies[i];
-            if (dist(pb, e) < COMBAT.PB_RADIUS + Math.min(e.w / 2, e.h / 2)) {
+            const hit = e.def.shape === 'rect'
+                ? isCircleVsOBB(pb.x, pb.y, COMBAT.PB_RADIUS, e)
+                : dist(pb, e) < COMBAT.PB_RADIUS + Math.min(e.w / 2, e.h / 2);
+            if (hit) {
                 if (!hasMechanic('penetrate')) {
                     processHitEnemy(pb, e, i);
                     bounced = true;
@@ -187,8 +209,11 @@ export function updateEnemies(dt: number): void {
             case 'static': break;
             case 'hover':
                 e.phase! += dt * 2;
-                e.x += Math.sin(e.phase!) * 30 * dt;
-                e.y += (e.vy || 50) * 0.5 * dt;
+                e.x += Math.cos(e.phase!) * 30 * dt;
+                e.y += Math.sin(e.phase! * 0.7) * 14 * dt;
+                // Clamp to upper half so it doesn't drift off-screen
+                if (e.y > VH * 0.55) { e.y = VH * 0.55; e.vy = Math.abs(e.vy || 30) * -0.3; }
+                if (e.y < WALL.top + e.h / 2) { e.y = WALL.top + e.h / 2; e.vy = Math.abs(e.vy || 30) * 0.3; }
                 break;
             case 'zigzag':
                 e.phase! += dt * 4;
@@ -198,6 +223,30 @@ export function updateEnemies(dt: number): void {
             case 'dive':
                 e.y += (e.vy || 50) * 1.5 * dt;
                 e.x += (e.vx || 0) * dt;
+                break;
+            case 'chase':
+                {
+                    const dx = s.x - e.x, dy = s.y - e.y, d = Math.hypot(dx, dy) || 1;
+                    const spd = e.def.speed || 50;
+                    e.x += (dx / d) * spd * dt;
+                    e.y += (dy / d) * spd * dt;
+                }
+                break;
+            case 'drift':
+                e.x += (e.vx || 0) * dt;
+                e.vx = (e.vx || 0) * 0.96;
+                e.y += (e.vy || e.def.speed || 50) * dt;
+                e.vy = (e.vy || 0) * 0.96;
+                // Wrap: when off bottom, reappear at top
+                if (e.y > VH + 40) { e.y = -e.h; e.x = rand(WALL.left + e.w / 2, WALL.right - e.w / 2); }
+                break;
+            case 'orbital':
+                {
+                    e.phase! += dt * 1.8;
+                    const orbitR = 60 + Math.sin(e.phase! * 0.3) * 20;
+                    e.x = VW / 2 + Math.cos(e.phase!) * orbitR;
+                    e.y = VH * 0.4 + Math.sin(e.phase! * 0.6) * orbitR * 0.5;
+                }
                 break;
             case 'boss':
                 e.phase! += dt * 1.5;
@@ -222,8 +271,8 @@ export function updateEnemies(dt: number): void {
                 C.laserBeams.push({
                     x: e.x, y: e.y,
                     dirX: dir.x, dirY: dir.y,
-                    life: 0.8,           // total life: 0.6s warning + 0.2s fire
-                    warnDuration: 0.6,   // warning phase (thin→thick)
+                    life: 1.6,           // total life: 1.2s warning + 0.4s fire
+                    warnDuration: 1.2,   // warning phase (thin→thick, gives player time to dodge)
                     fired: false,
                     dmg: e.def.dmg || 2,
                     owner: e,
@@ -233,8 +282,11 @@ export function updateEnemies(dt: number): void {
         }
         // Ship collision
         if (s.invincibleTimer <= 0 && !s.godMode) {
-            if (e.x - hw < s.x + COMBAT.SHIP_W / 2 && e.x + hw > s.x - COMBAT.SHIP_W / 2 &&
-                e.y - hh < s.y + COMBAT.SHIP_H / 2 && e.y + hh > s.y - COMBAT.SHIP_H / 2) {
+            const shipHit = e.def.shape === 'rect'
+                ? isCircleVsOBB(s.x, s.y, Math.max(COMBAT.SHIP_W, COMBAT.SHIP_H) / 2, e)
+                : (e.x - hw < s.x + COMBAT.SHIP_W / 2 && e.x + hw > s.x - COMBAT.SHIP_W / 2 &&
+                   e.y - hh < s.y + COMBAT.SHIP_H / 2 && e.y + hh > s.y - COMBAT.SHIP_H / 2);
+            if (shipHit) {
                 const dmg = e.def.dmg || 1;
                 s.hp -= dmg;
                 C.stats.hpLost = (C.stats.hpLost || 0) + dmg;
