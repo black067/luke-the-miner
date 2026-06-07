@@ -21,19 +21,38 @@ import type { Pinball } from './types.js';
 
 export function updateShip(dt: number): void {
     const s = C.ship;
+    // Entry animation: ship flies in from below
+    if (s.entryTimer > 0) {
+        s.entryTimer = Math.max(0, s.entryTimer - dt);
+        const progress = 1 - s.entryTimer / COMBAT.SHIP_ENTRY_TIME;
+        // Ease-out: ship starts below screen, glides to default Y
+        const startY = VH + COMBAT.SHIP_H;
+        const targetY = COMBAT.SHIP_Y;
+        s.y = startY + (targetY - startY) * (1 - Math.pow(1 - progress, 2));
+        // Cannon angle follows mouse during entry too
+        const dx = C.mouse.x - s.x, dy = C.mouse.y - s.y;
+        if (Math.hypot(dx, dy) > 4) s.cannonAngle = Math.atan2(dy, dx);
+        return; // No control during entry
+    }
     const speedMult = getShipSpeedMult();
-    const prevX = s.x;
-    if (C.keys['a'] || C.keys['A'] || C.keys['ArrowLeft'])
-        s.x -= COMBAT.SHIP_SPEED * speedMult * dt;
-    if (C.keys['d'] || C.keys['D'] || C.keys['ArrowRight'])
-        s.x += COMBAT.SHIP_SPEED * speedMult * dt;
-    s.x = clamp(s.x, WALL.left + COMBAT.SHIP_W / 2, WALL.right - COMBAT.SHIP_W / 2);
-    // Angle toward mouse
-    const gun = getGunPos();
-    const dirX = C.mouse.x - gun.x, dirY = C.mouse.y - gun.y;
-    if (Math.hypot(dirX, dirY) > 8)
-        s.angle = Math.atan2(dirY, dirX) + Math.PI / 2;
-    const moved = Math.abs(s.x - prevX);
+    // 2D movement: W/A/S/D
+    let mx = 0, my = 0;
+    if (C.keys['a'] || C.keys['A'] || C.keys['ArrowLeft']) mx -= 1;
+    if (C.keys['d'] || C.keys['D'] || C.keys['ArrowRight']) mx += 1;
+    if (C.keys['w'] || C.keys['W'] || C.keys['ArrowUp']) my -= 1;
+    if (C.keys['s'] || C.keys['S'] || C.keys['ArrowDown']) my += 1;
+    const moveLen = Math.hypot(mx, my) || 1;
+    const moveX = (mx / moveLen) * COMBAT.SHIP_SPEED * speedMult * dt;
+    const moveY = (my / moveLen) * COMBAT.SHIP_SPEED * speedMult * dt;
+    s.x = clamp(s.x + moveX, WALL.left + COMBAT.SHIP_W / 2, WALL.right - COMBAT.SHIP_W / 2);
+    s.y = clamp(s.y + moveY, WALL.top + COMBAT.SHIP_H / 2, WALL.bottom - COMBAT.SHIP_H / 2);
+    // Track thrust direction for vector thruster visuals
+    s.thrustX = mx / moveLen;
+    s.thrustY = my / moveLen;
+    const moved = Math.hypot(moveX, moveY);
+    // Cannon angle: always point toward mouse
+    const dx = C.mouse.x - s.x, dy = C.mouse.y - s.y;
+    if (Math.hypot(dx, dy) > 4) s.cannonAngle = Math.atan2(dy, dx);
     // Fuel drain (check infinite fuel mechanic)
     const fuelDrainMult = hasMechanic('infiniteFuel') || hasSpecialAbility('infiniteFuel') ? 0.1 : 1.0;
     s.fuel = Math.max(0, s.fuel - (COMBAT.FUEL_DRAIN * dt + moved * COMBAT.FUEL_MOVE_DRAIN) * fuelDrainMult);
@@ -195,32 +214,27 @@ export function updateEnemies(dt: number): void {
         if (e.x + hw > WALL.right) { e.x = WALL.right - hw; e.vx = -Math.abs(e.vx || 0); }
         if (e.y + hh > WALL.bottom) { e.y = WALL.bottom - hh; e.vy = -Math.abs(e.vy || 50) * 0.6; }
         if (e.y - hh < WALL.top) { e.y = WALL.top + hh; e.vy = Math.abs(e.vy || 50); }
-        // Laser mechanic
+        // Laser mechanic: create a single LaserBeam that handles warning + firing
         if (e.mechanic === 'laser') {
             e.laserTimer! -= dt;
-            if (e.laserWarning > 0) {
-                e.laserWarning -= dt;
-                // Fire beam when warning expires
-                if (e.laserWarning <= 0) {
-                    const n = norm(e.laserDir.x, e.laserDir.y);
-                    C.laserBeams.push({
-                        x: e.x, y: e.y,
-                        dirX: n.x, dirY: n.y,
-                        life: 0.25, fired: false, dmg: e.def.dmg || 2,
-                        owner: e,
-                    });
-                }
-            }
             if (e.laserTimer! <= 0) {
-                e.laserWarning = 0.5;
-                e.laserDir = norm(s.x - e.x, COMBAT.SHIP_Y - e.y);
+                const dir = norm(C.ship.x - e.x, C.ship.y - e.y);
+                C.laserBeams.push({
+                    x: e.x, y: e.y,
+                    dirX: dir.x, dirY: dir.y,
+                    life: 0.8,           // total life: 0.6s warning + 0.2s fire
+                    warnDuration: 0.6,   // warning phase (thin→thick)
+                    fired: false,
+                    dmg: e.def.dmg || 2,
+                    owner: e,
+                });
                 e.laserTimer = 3.0 + Math.random() * 2;
             }
         }
         // Ship collision
-        if (s.invincibleTimer <= 0) {
+        if (s.invincibleTimer <= 0 && !s.godMode) {
             if (e.x - hw < s.x + COMBAT.SHIP_W / 2 && e.x + hw > s.x - COMBAT.SHIP_W / 2 &&
-                e.y - hh < COMBAT.SHIP_Y + COMBAT.SHIP_H / 2 && e.y + hh > COMBAT.SHIP_Y - COMBAT.SHIP_H / 2) {
+                e.y - hh < s.y + COMBAT.SHIP_H / 2 && e.y + hh > s.y - COMBAT.SHIP_H / 2) {
                 const dmg = e.def.dmg || 1;
                 s.hp -= dmg;
                 C.stats.hpLost = (C.stats.hpLost || 0) + dmg;
@@ -237,7 +251,7 @@ export function updateEnemies(dt: number): void {
     for (const fb of C.fuelBlocks) {
         if (fb.state === 'solid') {
             if (Math.abs(fb.x - s.x) < COMBAT.SHIP_W / 2 + COMBAT.FUEL_BLOCK_RADIUS &&
-                Math.abs(fb.y - COMBAT.SHIP_Y) < COMBAT.SHIP_H / 2 + COMBAT.FUEL_BLOCK_RADIUS) {
+                Math.abs(fb.y - s.y) < COMBAT.SHIP_H / 2 + COMBAT.FUEL_BLOCK_RADIUS) {
                 s.fuel = Math.min(getShipMaxFuel(), s.fuel + COMBAT.FUEL_RESTORE);
                 fb.state = 'collected';
                 spawnParticle(fb.x, fb.y, 5, '#44ff44', 50);
@@ -259,7 +273,7 @@ export function updateFuelBlocks(dt: number): void {
             fb.vx = (fb.vx || 0) * 0.98;
             fb.vy = (fb.vy || 0) * 0.98;
         } else if (fb.state === 'ghost') {
-            const dx = s.x - fb.x, dy = COMBAT.SHIP_Y - fb.y, d = Math.hypot(dx, dy);
+            const dx = s.x - fb.x, dy = s.y - fb.y, d = Math.hypot(dx, dy);
             if (d < 8) {
                 s.fuel = Math.min(getShipMaxFuel(), s.fuel + COMBAT.FUEL_RESTORE);
                 fb.state = 'collected';
@@ -407,22 +421,22 @@ export function updateLaserBeams(dt: number): void {
     for (let i = C.laserBeams.length - 1; i >= 0; i--) {
         const L = C.laserBeams[i];
         L.life -= dt;
-        // Track the owning enemy's position
-        if (L.owner && C.enemies.includes(L.owner)) {
+        // Track the owning enemy's position during warning phase
+        if (!L.fired && L.owner && C.enemies.includes(L.owner)) {
             L.x = L.owner.x; L.y = L.owner.y;
         }
-        // Fire after 0.1s of warning — deal damage on first frame of firing
-        if (!L.fired && L.life < 0.15) {
+        // Fire: when warning phase expires, deal damage + SFX + brief flash
+        if (!L.fired && L.life <= L.warnDuration) {
             L.fired = true;
             SFX.play('laser');
             // Check ship proximity to beam line
-            const fx = s.x - L.x, fy = COMBAT.SHIP_Y - L.y;
+            const fx = s.x - L.x, fy = s.y - L.y;
             const proj = fx * L.dirX + fy * L.dirY;
             if (proj > 0 && proj < 600) {
                 const px = L.x + L.dirX * proj;
                 const py = L.y + L.dirY * proj;
-                const hitDist = Math.hypot(px - s.x, py - COMBAT.SHIP_Y);
-                if (hitDist < COMBAT.SHIP_W / 2 + 4 && s.invincibleTimer <= 0) {
+                const hitDist = Math.hypot(px - s.x, py - s.y);
+                if (hitDist < COMBAT.SHIP_W / 2 + 4 && s.invincibleTimer <= 0 && !s.godMode) {
                     s.hp -= L.dmg;
                     C.stats.hpLost = (C.stats.hpLost || 0) + L.dmg;
                     s.invincibleTimer = COMBAT.SHIP_INVINCIBLE_S;

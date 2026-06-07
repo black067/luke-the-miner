@@ -19,7 +19,7 @@ export const WALL = {
 export const C: CombatState = {
     state: 'idle',
     areaId: 'mine',
-    ship: { x: VW / 2, hp: 5, fuel: 100, invincibleTimer: 0, angle: -Math.PI / 2 },
+    ship: { x: VW / 2, y: COMBAT.SHIP_Y, hp: 5, fuel: 100, invincibleTimer: 0, cannonAngle: -Math.PI / 2, entryTimer: 0, thrustX: 0, thrustY: 0, godMode: false },
     pinballs: [],
     ammo: 5,
     fireCooldown: 0,

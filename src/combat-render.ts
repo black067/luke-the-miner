@@ -38,13 +38,19 @@ export function drawBattlefield(): void {
 // SHIP
 // ============================================================
 export function drawShip(): void {
-    const s = C.ship, cx = s.x, cy = COMBAT.SHIP_Y;
+    const s = C.ship, cx = s.x, cy = s.y;
     combatCtx.save();
     combatCtx.translate(cx, cy);
-    combatCtx.rotate(s.angle);
-    if (s.invincibleTimer > 0 && Math.floor(s.invincibleTimer * 10) % 2 === 0)
-        combatCtx.globalAlpha = 0.4;
-    // Ship body
+    // Ship body always faces up — no rotation
+
+    // Invincibility / god mode blink
+    const invBlink = (s.invincibleTimer > 0 || s.godMode) && Math.floor(performance.now() / 80) % 2 === 0;
+    if (invBlink) combatCtx.globalAlpha = 0.45;
+
+    // ---- vector thrusters ----
+    drawShipThrusters();
+
+    // ---- ship body (triangle pointing up) ----
     combatCtx.fillStyle = '#44cc88';
     combatCtx.beginPath();
     combatCtx.moveTo(0, -COMBAT.SHIP_H / 2);
@@ -54,15 +60,83 @@ export function drawShip(): void {
     combatCtx.lineTo(-COMBAT.SHIP_W / 2, COMBAT.SHIP_H / 2);
     combatCtx.closePath();
     combatCtx.fill();
-    // Cockpit
+
+    // God mode golden glow
+    if (s.godMode) {
+        combatCtx.strokeStyle = 'rgba(255, 200, 0, 0.6)';
+        combatCtx.lineWidth = 2;
+        combatCtx.beginPath();
+        combatCtx.arc(0, 0, COMBAT.SHIP_W / 2 + 4, 0, Math.PI * 2);
+        combatCtx.stroke();
+    }
+
+    // ---- cockpit ----
     combatCtx.fillStyle = '#88ffcc';
     combatCtx.beginPath();
-    combatCtx.arc(0, -2, 4, 0, Math.PI * 2);
+    combatCtx.arc(0, -4, 4, 0, Math.PI * 2);
     combatCtx.fill();
-    // Engines
-    combatCtx.fillStyle = '#ff8844';
-    combatCtx.fillRect(-5, COMBAT.SHIP_H / 2 - 4, 3, 4);
-    combatCtx.fillRect(2, COMBAT.SHIP_H / 2 - 4, 3, 4);
+
+    // ---- rotating cannon barrel ----
+    combatCtx.save();
+    combatCtx.rotate(s.cannonAngle + Math.PI / 2);
+    const barrelLen = COMBAT.SHIP_H / 2 + 6;
+    combatCtx.strokeStyle = '#ffffff';
+    combatCtx.lineWidth = 3;
+    combatCtx.beginPath();
+    combatCtx.moveTo(0, 2);
+    combatCtx.lineTo(0, -barrelLen);
+    combatCtx.stroke();
+    // Barrel tip glow
+    combatCtx.fillStyle = '#ffaa44';
+    combatCtx.beginPath();
+    combatCtx.arc(0, -barrelLen, 2.5, 0, Math.PI * 2);
+    combatCtx.fill();
+    combatCtx.restore();
+
+    combatCtx.restore();
+}
+
+function drawShipThrusters(): void {
+    const tx = C.ship.thrustX || 0, ty = C.ship.thrustY || 0;
+    const halfW = COMBAT.SHIP_W / 2, halfH = COMBAT.SHIP_H / 2;
+    // Flame shape points +Y (down in screen). Rotate to point away from ship.
+    // Rear thruster (bottom) — bright when moving UP (opposite direction)
+    drawThrusterFlame(0, halfH - 2, 0, 0.3 + Math.max(0, -ty) * 0.7, 4 + Math.max(0, -ty) * 6);
+    // Front thruster (top) — fires when moving DOWN
+    drawThrusterFlame(0, -halfH + 2, Math.PI, Math.max(0, ty) * 0.8, Math.max(0, ty) * 8);
+    // Right thruster — fires when moving left (thrust pushes right → flame goes right)
+    drawThrusterFlame(halfW - 2, 0, -Math.PI / 2, Math.max(0, -tx) * 0.8, Math.max(0, -tx) * 8);
+    // Left thruster — fires when moving right (thrust pushes left → flame goes left)
+    drawThrusterFlame(-halfW + 2, 0, Math.PI / 2, Math.max(0, tx) * 0.8, Math.max(0, tx) * 8);
+}
+
+function drawThrusterFlame(ox: number, oy: number, rot: number, bright: number, lenBoost: number): void {
+    if (bright < 0.02) {
+        // Idle rear thruster (rot=0): dim but always on
+        if (rot === 0) bright = 0.2; else return;
+    }
+    combatCtx.save();
+    combatCtx.translate(ox, oy);
+    combatCtx.rotate(rot);
+    const flameLen = Math.min(16, 3 + lenBoost + Math.random() * 3);
+    const r = Math.floor(255);
+    const g = Math.floor(120 + bright * 135 + Math.random() * 30);
+    const b = Math.floor(Math.random() * 25);
+    combatCtx.fillStyle = `rgba(${r},${g},${b},${0.4 + bright * 0.6})`;
+    combatCtx.beginPath();
+    combatCtx.moveTo(-3, 2);
+    combatCtx.lineTo(3, 2);
+    combatCtx.lineTo(0, flameLen);
+    combatCtx.closePath();
+    combatCtx.fill();
+    // Inner bright core
+    combatCtx.fillStyle = `rgba(255,255,200,${0.3 + bright * 0.4})`;
+    combatCtx.beginPath();
+    combatCtx.moveTo(-1.5, 2);
+    combatCtx.lineTo(1.5, 2);
+    combatCtx.lineTo(0, flameLen * 0.6);
+    combatCtx.closePath();
+    combatCtx.fill();
     combatCtx.restore();
 }
 // ============================================================
@@ -153,18 +227,6 @@ export function drawEnemies(): void {
             combatCtx.textAlign = 'start';
         }
 
-        // ---- laser warning line ----
-        if (e.mechanic === 'laser' && e.laserWarning > 0) {
-            combatCtx.setLineDash([8, 4]);
-            combatCtx.strokeStyle = 'rgba(255,60,60,0.6)';
-            combatCtx.lineWidth = 1.5;
-            combatCtx.beginPath();
-            combatCtx.moveTo(0, 0);
-            combatCtx.lineTo(e.laserDir.x * 300, e.laserDir.y * 300);
-            combatCtx.stroke();
-            combatCtx.setLineDash([]);
-        }
-
         combatCtx.restore();
     }
 }
@@ -249,6 +311,7 @@ export function drawPreviewLine(): void {
 }
 // ============================================================
 // LASER BEAMS (enemy laser attacks)
+// Thin solid line → thickens → flash + SFX + damage
 // ============================================================
 export function drawLaserBeams(): void {
     for (const L of C.laserBeams) {
@@ -256,27 +319,39 @@ export function drawLaserBeams(): void {
         const ex = L.x + L.dirX * beamLen;
         const ey = L.y + L.dirY * beamLen;
         if (!L.fired) {
-            // Warning phase: dashed red line
-            combatCtx.setLineDash([8, 6]);
-            combatCtx.strokeStyle = 'rgba(255, 60, 60, 0.6)';
-            combatCtx.lineWidth = 2;
+            // Warning phase: thin solid line that gradually thickens
+            const progress = 1 - (L.life - L.warnDuration) / L.warnDuration; // 0→1
+            const lw = 1 + progress * 5; // grows from 1px to 6px
+            const alpha = 0.3 + progress * 0.5; // fades in
+            combatCtx.strokeStyle = `rgba(255, 50, 50, ${alpha})`;
+            combatCtx.lineWidth = lw;
+            combatCtx.setLineDash([]); // SOLID line — not dashed (differentiate from aim line)
         } else {
-            // Firing phase: solid thick red beam with glow
-            combatCtx.setLineDash([]);
-            combatCtx.strokeStyle = 'rgba(255, 40, 40, 0.4)';
-            combatCtx.lineWidth = 10;
+            // Firing phase: bright flash → fade
+            const fadeProgress = L.life / L.warnDuration; // 1→0 (fade out)
+            // Glow layer
+            combatCtx.strokeStyle = `rgba(255, 30, 30, ${0.25 * fadeProgress})`;
+            combatCtx.lineWidth = 12;
             combatCtx.beginPath();
             combatCtx.moveTo(L.x, L.y);
             combatCtx.lineTo(ex, ey);
             combatCtx.stroke();
-            combatCtx.strokeStyle = '#ff2222';
-            combatCtx.lineWidth = 4;
+            // Core beam
+            const flash = fadeProgress > 0.5 ? 1 : fadeProgress * 2;
+            combatCtx.strokeStyle = `rgba(255, ${Math.floor(50 + flash * 100)}, ${Math.floor(flash * 30)}, ${0.8 * fadeProgress})`;
+            combatCtx.lineWidth = 5;
         }
         combatCtx.beginPath();
         combatCtx.moveTo(L.x, L.y);
         combatCtx.lineTo(ex, ey);
         combatCtx.stroke();
-        combatCtx.setLineDash([]);
+        // Source glow at enemy position
+        if (!L.fired) {
+            combatCtx.fillStyle = 'rgba(255, 80, 80, 0.5)';
+            combatCtx.beginPath();
+            combatCtx.arc(L.x, L.y, 4, 0, Math.PI * 2);
+            combatCtx.fill();
+        }
     }
 }
 // ============================================================

@@ -19,7 +19,7 @@ import type { Pinball, CombatEnemy, EnemyDef, WarehouseItem } from './types.js';
 
 export function getGunPos(): { x: number; y: number } {
     const s = C.ship, off = COMBAT.SHIP_H / 2 + 2;
-    return { x: s.x + off * Math.sin(s.angle), y: COMBAT.SHIP_Y - off * Math.cos(s.angle) };
+    return { x: s.x + off * Math.cos(s.cannonAngle), y: s.y + off * Math.sin(s.cannonAngle) };
 }
 
 export function createPinball(fromX: number, fromY: number, dirX: number, dirY: number): Pinball {
@@ -49,8 +49,6 @@ export function createEnemy(x: number, y: number, def: EnemyDef): CombatEnemy {
         shieldCount: def.mechanic === 'shield' ? 3 : 0,
         splitChildren: false,
         laserTimer: def.mechanic === 'laser' ? 2.0 : 0,
-        laserWarning: 0,
-        laserDir: { x: 0, y: 0 },
         phase: rand(0, Math.PI * 2),
         flashTimer: 0,
     };
@@ -412,12 +410,12 @@ export function useQuickSlot(idx: number): void {
         const maxHp = getShipMaxHP();
         const healVal = itemDef.value || 0;
         C.ship.hp = Math.min(maxHp, C.ship.hp + Math.round(maxHp * healVal));
-        spawnDmgNumber(C.ship.x, COMBAT.SHIP_Y - 20, '+' + Math.round(maxHp * healVal), '#44ff44');
+        spawnDmgNumber(C.ship.x, C.ship.y - 20, '+' + Math.round(maxHp * healVal), '#44ff44');
     } else if (itemDef.effect === 'refuel') {
         const maxFuel = getShipMaxFuel();
         const refuelVal = itemDef.value || 0;
         C.ship.fuel = Math.min(maxFuel, C.ship.fuel + maxFuel * refuelVal);
-        spawnDmgNumber(C.ship.x, COMBAT.SHIP_Y - 20, '+FUEL', '#44ff44');
+        spawnDmgNumber(C.ship.x, C.ship.y - 20, '+FUEL', '#44ff44');
     } else if (itemDef.effect === 'buff' && itemDef.buffId) {
         applyBuff(itemDef.buffId, 0);
     }

@@ -8,16 +8,17 @@ import { GS, getBallProps, getShipMaxHP, getShipMaxFuel, hasMechanic, hasSpecial
 import { showScreen, showToast } from './screens.js';
 import { showSettings } from './settings.js';
 import { showSettlement } from './settlement.js';
-import { C, CombatCargo, VW, VH } from './combat-state.js';
-import { useQuickSlot, startWave } from './combat-systems.js';
+import { C, CombatCargo, VW, VH, COMBAT, WALL } from './combat-state.js';
+import { useQuickSlot, startWave, createEnemy, spawnParticle, tryDropLoot } from './combat-systems.js';
 import { update } from './combat-update.js';
 import {
     showPauseMenu, closePauseMenu,
     openCombatInventory, closeCombatInventory,
     showEarlyEvacConfirm,
     updateHtmlHUD,
+    combatToast,
 } from './combat-ui.js';
-import type { CombatResult } from './types.js';
+import type { CombatResult, EnemyDef } from './types.js';
 
 // ============================================================
 // OWNED MUTABLE VARIABLES (written by this module)
@@ -99,6 +100,9 @@ export function startCombat(areaId: string): void {
     const maxFuel = getShipMaxFuel();
     C.ship.hp = maxHp;
     C.ship.fuel = maxFuel;
+    // Entry animation: ship starts below screen
+    C.ship.y = VH + COMBAT.SHIP_H;
+    C.ship.entryTimer = COMBAT.SHIP_ENTRY_TIME;
     C.comboActive = hasMechanic('comboMultiplier');
     C.comboCount = 0;
     C.comboTimer = 0;
@@ -161,7 +165,7 @@ export function endCombat(result: CombatResult): void {
 
 export function resetCombatState(): void {
     C.state = 'idle';
-    C.ship = { x: VW / 2, hp: getShipMaxHP(), fuel: getShipMaxFuel(), invincibleTimer: 0, angle: -Math.PI / 2 };
+    C.ship = { x: VW / 2, y: COMBAT.SHIP_Y, hp: getShipMaxHP(), fuel: getShipMaxFuel(), invincibleTimer: 0, cannonAngle: -Math.PI / 2, entryTimer: COMBAT.SHIP_ENTRY_TIME, thrustX: 0, thrustY: 0, godMode: false };
     C.pinballs = [];
     C.ammo = getBallProps().magazine;
     C.fireCooldown = 0;
@@ -197,6 +201,13 @@ export function combatKeyDown(e: KeyboardEvent): void {
     if (e.key === '2') useQuickSlot(1);
     if (e.key === '3') useQuickSlot(2);
     if (e.key === 'Tab') { openCombatInventory(); e.preventDefault(); }
+    if (e.key === 'Escape') { togglePause(); }
+    // Debug hotkeys (Ctrl+Shift+...)
+    if (e.ctrlKey && e.shiftKey) {
+        if (e.key === 'K' || e.key === 'k') { debugKillAllEnemies(); e.preventDefault(); }
+        if (e.key === 'G' || e.key === 'g') { debugToggleGodMode(); e.preventDefault(); }
+        if (e.key === 'F' || e.key === 'f') { debugRefillFuel(); e.preventDefault(); }
+    }
 }
 
 export function combatKeyUp(e: KeyboardEvent): void { C.keys[e.key] = false; }
@@ -250,4 +261,65 @@ export function confirmEarlyEvac(): void {
     C.stats.time = performance.now() - C._startTime;
     C.state = 'evacuate';
     // endCombat called by combatLoop on next frame
+}
+
+// ============================================================
+// DEBUG METHODS (exposed on window.__combatDebug)
+// ============================================================
+
+import { SFX } from './audio.js';
+
+export function debugKillAllEnemies(): void {
+    if (C.state !== 'playing') return;
+    for (const e of [...C.enemies]) {
+        spawnParticle(e.x, e.y, 8, '#ff4444', 100);
+        C.stats.killed++;
+        tryDropLoot(e.x, e.y, e.def);
+    }
+    C.enemies.length = 0;
+    C.wave.spawnQueue.length = 0;
+    C.wave.allSpawned = true;
+    SFX.play('bossKill');
+    combatToast('☠ 调试：已清除所有敌人', 1.5);
+}
+
+export function debugSpawnEnemy(enemyId: string): void {
+    if (C.state !== 'playing') return;
+    // Support both data key (e.g. 'laserTurret') and id field (e.g. 'e_laser')
+    let def: EnemyDef | undefined = DATA.ENEMIES[enemyId];
+    if (!def) {
+        def = Object.values(DATA.ENEMIES).find(e => e.id === enemyId);
+    }
+    if (!def) { combatToast('❌ 未知敌人ID: ' + enemyId, 1.5); return; }
+    const spawnX = C.ship.x + (Math.random() - 0.5) * 200;
+    const spawnY = WALL.top + 40;
+    const enemy = createEnemy(spawnX, spawnY, def);
+    if (def.mechanic === 'boss') {
+        C.wave.bossSpawned = true;
+        enemy.isBoss = true;
+        combatToast('⚠ 调试：刷出BOSS ' + def.name, 1.5);
+        C.shakeTimer = 0.2;
+    }
+    C.enemies.push(enemy);
+    combatToast('🐛 调试：刷出 ' + def.name, 1.0);
+}
+
+export function debugToggleGodMode(): void {
+    C.ship.godMode = !C.ship.godMode;
+    combatToast(C.ship.godMode ? '🛡 无敌模式：开' : '🛡 无敌模式：关', 1.2);
+}
+
+export function debugRefillFuel(): void {
+    C.ship.fuel = getShipMaxFuel();
+    combatToast('⛽ 燃料已补满', 1.0);
+}
+
+// Expose on window for browser console access
+if (typeof window !== 'undefined') {
+    (window as any).__combatDebug = {
+        killAll: debugKillAllEnemies,
+        spawn: debugSpawnEnemy,
+        god: debugToggleGodMode,
+        fuel: debugRefillFuel,
+    };
 }
