@@ -195,9 +195,16 @@
 #settings-screen .field-row > label { width: 28%; flex-shrink: 0; text-align: right; padding-right: 8px; white-space: nowrap; }
 #settings-screen .button-min { min-width: unset; width: auto; padding: 0 8px; }
 
-/* === UPGRADE CANVAS (game-specific) === */
-.window-upgrade .window-body { position: relative; padding: 0; overflow: hidden; }
-#upgrade-canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+/* === SETTLEMENT LEDGER === */
+ul.ledger { list-style: none; margin: 0; padding: 0; }
+ul.ledger li { display: flex; justify-content: space-between; }
+ul.ledger li span:first-child { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+ul.ledger li span:first-child::after { content: ' . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .'; color: #888; }
+ul.ledger li span:last-child { flex-shrink: 0; margin-left: 4px; text-align: right; }
+.settle-actions { text-align: center; margin-top: 8px; }
+.settle-balance { text-align: center; font-size: 11px; }
+.settle-subtitle { text-align: center; font-size: 12px; opacity: 0.8; }
+.loot-summary { display: flex; flex-wrap: wrap; gap: 4px; }
 #upgrade-canvas:active { cursor: grabbing; }
 .upgrade-float { position: absolute; right: 10px; top: 10px; width: 200px; background: #c0c0c0; border: 2px solid; border-color: #fff #808080 #808080 #fff; padding: 8px; z-index: 10; display: none; flex-direction: column; gap: 6px; }
 .upgrade-float.visible { display: flex; }

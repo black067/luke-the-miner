@@ -171,18 +171,35 @@
 
   <!-- ========== SETTLEMENT ========== -->
   <div class="screen" id="settlement-screen">
-    <div class="window" style="width:300px;">
-      <div class="title-bar"><div class="title-bar-text" id="settle-title">工资单</div></div>
+    <div class="window settle-window">
+      <div class="title-bar"><div class="title-bar-text" id="settle-titlebar-text">作业结算</div></div>
       <div class="window-body">
-      <div class="field-row"><label>击败敌人</label><span id="settle-kills">0</span></div>
-      <div class="field-row"><label>命中次数</label><span id="settle-hits">0</span></div>
-      <div class="field-row"><label>命中率</label><span id="settle-acc">--</span></div>
-      <div class="field-row"><label>矿物出售</label><span id="settle-loot">+₿ 0</span></div>
-      <div class="field-row"><label>还债扣除</label><span id="settle-debt">-₿ 0</span></div>
-      <div id="settle-penalties"></div>
-      <div class="field-row"><label>净收入</label><span id="settle-net">+₿ 0</span></div>
-      <div class="field-row"><label>剩余债务</label><span id="settle-remaining">¥ 128,000</span></div>
-      <button data-action="return-to-hangar">返回机库</button>
+        <div class="settle-banner" id="settle-banner">清场撤离 · 圆满下班</div>
+        <p class="settle-subtitle" id="settle-subtitle">所有波次敌人被清空。</p>
+
+        <fieldset><legend>战斗统计</legend>
+          <ul class="ledger" id="settle-ledger-stats">
+            <li><span>击败敌人</span><span id="settle-kills">0</span></li>
+            <li><span>发射弹珠</span><span id="settle-shots">0</span></li>
+            <li><span>命中率</span><span id="settle-acc">--</span></li>
+            <li><span>最高连击</span><span id="settle-combo">0</span></li>
+            <li><span id="settle-ore-label">矿石</span><span id="settle-ore">0 / 0</span></li>
+          </ul>
+        </fieldset>
+
+        <fieldset><legend>收支明细</legend>
+          <ul class="ledger" id="settle-ledger">
+          </ul>
+        </fieldset>
+
+        <fieldset id="settle-loot-fieldset"><legend>入库战利品</legend>
+          <div class="loot-summary" id="settle-loot-summary"></div>
+        </fieldset>
+
+        <p class="settle-balance" id="settle-balance">余额：₿0 · 💵0</p>
+        <div class="settle-actions">
+          <button class="big" data-action="return-to-hangar" id="to-hangar">回到机库 ▶</button>
+        </div>
       </div>
     </div>
   </div>

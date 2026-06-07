@@ -34,7 +34,6 @@ body { display: flex; align-items: center; justify-content: center; }
 /* === SCREEN LAYOUTS (flex direction + centering only) === */
 #main-menu { flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
 #settlement-screen { flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
-#settlement-screen .window { width: 300px; }
 #settings-screen { flex-direction: column; align-items: center; justify-content: center; }
 
 /* === INTRO (phone messaging, not 98.css) === */
