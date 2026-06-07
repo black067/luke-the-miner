@@ -330,7 +330,15 @@ export function updateWave(dt: number): void {
         if (C.ship.hp <= 0) {
             C.state = 'defeat';
         } else {
-            C.state = 'breakdown';
+            // Fuel depleted: check if resource goal is met
+            const area = DATA.AREAS.find(a => a.id === C.areaId);
+            const goal = area ? area.resourceGoal : 30;
+            if (C.stats.resourceCollected >= goal) {
+                C.state = 'victory';
+                C.stats.fuelDepleted = true;
+            } else {
+                C.state = 'breakdown';
+            }
         }
         // endCombat called from combat.ts
     }

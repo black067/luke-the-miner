@@ -39,6 +39,7 @@ export const C: CombatState = {
         oreValue: 0, resourceCollected: 0,
         cargo: [],
         hpLost: 0, time: 0,
+        fuelDepleted: false,
     },
     shakeTimer: 0,
     shakeMagnitude: 0,

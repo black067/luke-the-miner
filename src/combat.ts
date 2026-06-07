@@ -180,7 +180,7 @@ export function resetCombatState(): void {
     C.ammoShake = 0;
     C.mouse = { x: VW / 2, y: VH / 2 };
     C.mouseDown = false;
-    C.stats = { killed: 0, hits: 0, shots: 0, oreValue: 0, resourceCollected: 0, cargo: [], hpLost: 0, time: 0 };
+    C.stats = { killed: 0, hits: 0, shots: 0, oreValue: 0, resourceCollected: 0, cargo: [], hpLost: 0, time: 0, fuelDepleted: false };
     C.shakeTimer = 0;
     C.shakeMagnitude = 0;
     C.preview = { p1: null, p2: null, targetHit: 0 };

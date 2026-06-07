@@ -171,10 +171,19 @@ export function showSettlement(result: string, stats: CombatStats, areaId: strin
         const s = calcVictorySettlement(kills, stats.oreValue || 0, DATA.COMBAT.DEBT_RATIO);
         addLedgerRow(ledgerEl, `${(area ? area.specialResource : '矿石')} ×${oreCollected} 自动出售`, `+₿${s.lootValue.toLocaleString()}`, '');
         addLedgerRow(ledgerEl, `强制还债 (${Math.round(DATA.COMBAT.DEBT_RATIO * 100)}%)`, `−₿${s.debtCut.toLocaleString()}`, 'bad');
-        addLedgerRow(ledgerEl, '本次到手', `+₿${s.net.toLocaleString()}`, 'total');
+
+        // Tow fee if victory via fuel depletion (下班 by fuel out)
+        let towFee = 0;
+        if (stats.fuelDepleted) {
+            towFee = PENALTY_TOW_FEE;
+            addLedgerRow(ledgerEl, '拖车费（燃料耗尽）', `−₿${towFee.toLocaleString()}`, 'bad');
+        }
+
+        const finalNet = s.net - towFee;
+        addLedgerRow(ledgerEl, '本次到手', `${finalNet >= 0 ? '+' : ''}₿${finalNet.toLocaleString()}`, 'total');
 
         dispatch({ type: 'SET_DEBT', value: Math.max(0, GS.debt - s.debtCut) });
-        dispatch({ type: 'ADD_BITCOIN', amount: s.net });
+        dispatch({ type: 'ADD_BITCOIN', amount: finalNet });
         dispatch({ type: 'SET_COMBAT_RESULT', result: 'victory' });
         SFX.play('victory');
     } else {
