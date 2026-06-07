@@ -19,21 +19,16 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
-# 强制 GitHub Actions 使用 Node.js 24 运行 JavaScript 操作
-# 避免 Node.js 20 弃用警告（2026-09-16 后移除）
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '24'
           cache: npm
@@ -55,7 +50,7 @@ jobs:
           find _site -type f | sort
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
