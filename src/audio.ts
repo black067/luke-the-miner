@@ -4,6 +4,7 @@
    ============================================================ */
 
 import { GS } from './state.js';
+import { getSharedAudioContext } from './audio-context.js';
 
 /** Generate a short white-noise AudioBuffer for percussion/explosion textures. */
 function _noiseBuf(ctx: AudioContext, dur: number): AudioBuffer {
@@ -12,19 +13,6 @@ function _noiseBuf(ctx: AudioContext, dur: number): AudioBuffer {
     const d = buf.getChannelData(0);
     for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
     return buf;
-}
-
-/** Shared AudioContext — created once on first use, shared by all audio modules. */
-let _sharedCtx: AudioContext | null = null;
-function _getSharedCtx(): AudioContext | null {
-    if (!_sharedCtx) {
-        try { _sharedCtx = new (window.AudioContext || (window as any).webkitAudioContext)(); }
-        catch (_e) { /* Web Audio unavailable */ }
-    }
-    if (_sharedCtx && _sharedCtx.state === 'suspended') {
-        _sharedCtx.resume();
-    }
-    return _sharedCtx;
 }
 
 /* ============================================================
@@ -48,7 +36,7 @@ export const SFX: {
 
     play(key: string, useMutate: boolean = true) {
         if (!this.initialized) this.init();
-        const ctx = _getSharedCtx();
+        const ctx = getSharedAudioContext();
         if (!ctx) return;
         const v = this._vol();
         if (v <= 0) return;
@@ -321,7 +309,7 @@ export const UI: {
     _vol() { return (GS.settings.sfxVolume / 100) * (GS.settings.masterVolume / 100); },
     /** Short sine-wave click — button presses, selections */
     click() {
-        const ctx = _getSharedCtx();
+        const ctx = getSharedAudioContext();
         if (!ctx)
             return;
         const v = this._vol();
@@ -342,7 +330,7 @@ export const UI: {
     },
     /** Subtle tick for hover / focus changes */
     hover() {
-        const ctx = _getSharedCtx();
+        const ctx = getSharedAudioContext();
         if (!ctx)
             return;
         const v = this._vol();
@@ -362,7 +350,7 @@ export const UI: {
     },
     /** Ascending two-tone chime — window / menu open */
     open() {
-        const ctx = _getSharedCtx();
+        const ctx = getSharedAudioContext();
         if (!ctx)
             return;
         const v = this._vol();
@@ -385,7 +373,7 @@ export const UI: {
     },
     /** Descending two-tone chime — window / menu close */
     close() {
-        const ctx = _getSharedCtx();
+        const ctx = getSharedAudioContext();
         if (!ctx)
             return;
         const v = this._vol();
@@ -408,7 +396,7 @@ export const UI: {
     },
     /** Error / warning buzz */
     error() {
-        const ctx = _getSharedCtx();
+        const ctx = getSharedAudioContext();
         if (!ctx)
             return;
         const v = this._vol();
@@ -428,7 +416,7 @@ export const UI: {
     },
     /** Pleasant notification ding — new mail, toast */
     notify() {
-        const ctx = _getSharedCtx();
+        const ctx = getSharedAudioContext();
         if (!ctx)
             return;
         const v = this._vol();
@@ -451,7 +439,7 @@ export const UI: {
     },
     /** Ascending arpeggio — game start, boot into desktop */
     startup() {
-        const ctx = _getSharedCtx();
+        const ctx = getSharedAudioContext();
         if (!ctx)
             return;
         const v = this._vol();
@@ -474,7 +462,7 @@ export const UI: {
     },
     /** Descending tone — power off / shutdown */
     shutdown() {
-        const ctx = _getSharedCtx();
+        const ctx = getSharedAudioContext();
         if (!ctx)
             return;
         const v = this._vol();
@@ -497,7 +485,7 @@ export const UI: {
     },
     /** Deep action confirm — go to work / embark */
     action() {
-        const ctx = _getSharedCtx();
+        const ctx = getSharedAudioContext();
         if (!ctx)
             return;
         const v = this._vol();
@@ -521,123 +509,9 @@ export const UI: {
 };
 
 /* ============================================================
-   BGM — Looping background music (WAV files via Web Audio API)
-   Tracks: 'combat' → bgm-0.wav, 'hangar' → bgm-hangar-0.wav
+   BGM — Background music via @strudel/* packages
+   Tracks: 'combat' → assets/bgm/bgm-combat.js
+           'hangar' → assets/bgm/bgm-hangar.js
+   Re-exported from bgm-strudel.ts for centralized import.
    ============================================================ */
-export const BGM: {
-    _gain: GainNode | null;
-    _source: AudioBufferSourceNode | null;
-    _buffers: Record<string, AudioBuffer>;
-    _currentTrack: string | null;
-    _pendingTrack: string | null;
-    _loaded: boolean;
-    _loading: boolean;
-    init(): Promise<void>;
-    _loadBuffer(url: string): Promise<AudioBuffer>;
-    play(track: string): void;
-    stop(): void;
-    updateVolume(): void;
-} = {
-    _gain: null,
-    _source: null,
-    _buffers: {},
-    _currentTrack: null,
-    _pendingTrack: null,
-    _loaded: false,
-    _loading: false,
-
-    async init() {
-        if (this._loaded || this._loading) return;
-        this._loading = true;
-        const ctx = _getSharedCtx();
-        if (!ctx) {
-            this._loading = false;
-            return;
-        }
-
-        const tracks: Record<string, string> = {
-            combat: 'assets/bgm-0.wav',
-            hangar: 'assets/bgm-hangar-0.wav',
-        };
-
-        for (const [key, url] of Object.entries(tracks)) {
-            try {
-                this._buffers[key] = await this._loadBuffer(url);
-            } catch (_e) {
-                console.warn('BGM: failed to load', url);
-            }
-        }
-
-        this._gain = ctx.createGain();
-        const mv = GS.settings.masterVolume ?? 80;
-        const bv = GS.settings.bgmVolume ?? 80;
-        this._gain.gain.value = (mv / 100) * (bv / 100);
-        this._gain.connect(ctx.destination);
-
-        this._loaded = true;
-        this._loading = false;
-
-        // If a track was requested while loading, play it now
-        if (this._pendingTrack) {
-            const track = this._pendingTrack;
-            this._pendingTrack = null;
-            this.play(track);
-        }
-    },
-
-    async _loadBuffer(url: string): Promise<AudioBuffer> {
-        const resp = await fetch(url);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const arrayBuf = await resp.arrayBuffer();
-        const ctx = _getSharedCtx();
-        if (!ctx) throw new Error('AudioContext unavailable');
-        return ctx.decodeAudioData(arrayBuf);
-    },
-
-    play(track: string) {
-        // Already playing this track — nothing to do
-        if (this._currentTrack === track) return;
-        // Not loaded yet — init and stash the request
-        if (!this._loaded) {
-            this._pendingTrack = track;
-            if (!this._loading) this.init();
-            return;
-        }
-        const ctx = _getSharedCtx();
-        if (!ctx || !this._gain) return;
-
-        this.stop();
-
-        const buffer = this._buffers[track];
-        if (!buffer) return;
-
-        if (ctx.state === 'suspended') ctx.resume();
-
-        const source = ctx.createBufferSource();
-        source.buffer = buffer;
-        source.loop = true;
-        source.connect(this._gain);
-        source.start();
-
-        this._source = source;
-        this._currentTrack = track;
-    },
-
-    stop() {
-        if (this._source) {
-            try { this._source.stop(); } catch (_e) { /* already stopped */ }
-            this._source.disconnect();
-            this._source = null;
-        }
-        this._currentTrack = null;
-        this._pendingTrack = null;
-    },
-
-    updateVolume() {
-        if (this._gain) {
-            const mv = GS.settings.masterVolume ?? 80;
-            const bv = GS.settings.bgmVolume ?? 80;
-            this._gain.gain.value = (mv / 100) * (bv / 100);
-        }
-    },
-};
+export { BGM } from './bgm-strudel.js';

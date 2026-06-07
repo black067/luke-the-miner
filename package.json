@@ -4,7 +4,8 @@
   "description": "星环矿工",
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "build": "npm run build:strudel && tsc",
+    "build:strudel": "esbuild build/strudel-bundle-entry.js --bundle --format=iife --global-name=__strudelBundle --outfile=dist/js/strudel-bundle.js",
     "watch": "tsc --watch",
     "clean": "del /q dist\\js 2>nul || rmdir /s /q dist\\js 2>nul || true",
     "test": "vitest run",
@@ -12,6 +13,10 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
+    "@strudel/core": "^1.2.6",
+    "@strudel/mini": "^1.2.6",
+    "@strudel/webaudio": "^1.3.0",
+    "esbuild": "^0.28.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.8"
   }
