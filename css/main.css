@@ -36,18 +36,88 @@ body { display: flex; align-items: center; justify-content: center; }
 #settlement-screen { flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
 #settings-screen { flex-direction: column; align-items: center; justify-content: center; }
 
-/* === INTRO (phone messaging, not 98.css) === */
+/* === INTRO (phone-style SMS cutscene) === */
 #intro-screen { flex-direction: column; align-items: center; justify-content: center; background: #1a1a2e; }
-.phone-frame { width: 70%; max-width: 380px; background: #0c0c1a; border: 3px solid #333; border-radius: 20px; padding: 24px 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 0 40px rgba(0,0,0,0.6); }
-.phone-header { text-align: center; font-family: 'Press Start 2P', monospace; color: #888; letter-spacing: 1px; }
-.sms-bubble { background: #1a2a1a; border: 1px solid #2a4a2a; border-radius: 8px; padding: 12px; line-height: 1.5; color: #adc; }
-.sms-bubble .sender { font-family: 'Press Start 2P', monospace; color: #5a5; margin-bottom: 6px; }
-.sms-bubble .link { color: #4af; text-decoration: underline; cursor: pointer; }
-.sms-bubble .link:hover { color: #8cf; }
-.sms-bubble .action-btn { display: inline-block; margin-top: 8px; background: #2a5a2a; color: #0f0; padding: 6px 16px; border-radius: 4px; cursor: pointer; text-align: center; }
-.sms-bubble .action-btn:hover { background: #3a7a3a; }
-.intro-skip { margin-top: 16px; color: #666; cursor: pointer; text-decoration: underline; }
-.intro-skip:hover { color: #aaa; }
+
+/* Phone chassis */
+.phone {
+  width: 300px;
+  height: 560px;
+  margin: auto;
+  background: #cfd6c5;
+  border: 10px solid #2b2b2b;
+  border-radius: 28px;
+  box-shadow: 0 0 40px rgba(57, 255, 20, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Status bar */
+.phone-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  background: #b8bfb0;
+  border-bottom: 1px solid #8a8f82;
+  font-size: 11px;
+  color: #2b2b2b;
+  flex-shrink: 0;
+}
+
+/* SMS list area */
+.phone-screen {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #cfd6c5;
+}
+
+/* Single SMS bubble */
+.sms {
+  background: #fff;
+  border: 1px solid #b0b0b0;
+  border-radius: 4px;
+  padding: 10px 12px;
+  line-height: 1.6;
+  color: #222;
+  font-size: 12px;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+}
+.sms .from {
+  display: block;
+  font-weight: bold;
+  color: #1a5c1a;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+.sms a {
+  color: #004aad;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.sms a:hover {
+  color: #0078d7;
+}
+
+/* Bottom hint */
+.phone-hint {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  text-align: center;
+  font-size: 11px;
+  color: #555;
+  background: #b8bfb0;
+  border-top: 1px solid #8a8f82;
+  cursor: pointer;
+}
+.phone-hint:hover {
+  color: #222;
+}
 
 /* === MAIN MENU === */
 .menu-stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }

@@ -34,21 +34,25 @@
 
   <!-- ========== INTRO ========== -->
   <div class="screen" id="intro-screen">
-    <div class="phone-frame">
-      <div class="phone-header">消息</div>
-      <div class="sms-bubble" id="sms1">
-        <div class="sender">特没谱金融信贷专员 斯马克</div>
-        <div>您的学生贷款已逾期6个月，AI自动为您申请了星环矿工的岗位，入职后，您收入的50%将被用于偿还您的债务。</div>
-        <div>对这个岗位不满意？<span class="link" data-action="intro-link" data-action-arg="抱歉，志愿者已满！">绿色长生基金会</span>正在有偿招募试药志愿者。</div>
+    <div class="phone">
+      <div class="phone-status">
+        <span>NokiX 3210</span><span>19:24</span><span>▮▮▯</span>
       </div>
-      <div class="sms-bubble" id="sms2">
-        <div class="sender">星环矿业</div>
-        <div>恭喜您通过审核，立刻点击链接领取前往内1环A区的船票，成为星环矿工。</div>
-        <div>北美星环矿业欢迎您的到来，祝您工作顺利。</div>
-        <div class="action-btn" data-action="intro-accept">立刻入职</div>
+      <div class="phone-screen" id="sms-screen">
+        <div class="sms" id="sms1">
+          <span class="from">特没谱金融 · 信贷专员斯马克</span>
+          您的学生贷款已逾期 6 个月。AI 已自动为您申请「星环矿工」岗位，入职后您收入的 <b>50%</b> 将被用于偿还债务。<br>
+          对岗位不满意？<a data-action="intro-link" data-action-arg="抱歉，志愿者已满！">绿色长生基金会</a>正在有偿招募试药志愿者。
+        </div>
+        <div class="sms" id="sms2">
+          <span class="from">北美星环矿业</span>
+          恭喜您通过审核！立刻点击链接领取前往「内1环 A 区」的船票，成为光荣的星环矿工。<br>
+          祝您工作顺利。<br><br>
+          <a data-action="intro-accept">[ 立刻入职 ]</a>
+        </div>
       </div>
+      <div class="phone-hint" id="phone-hint" data-action="intro-skip">▶ 点击短信中的链接继续</div>
     </div>
-    <div class="intro-skip" data-action="intro-skip">跳过 &gt;&gt;</div>
   </div>
 
   <!-- ========== DESKTOP (Hangar) ========== -->

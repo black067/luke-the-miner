@@ -63,7 +63,7 @@ export function openCombatInventory(): void {
         if (e.target === ov) closeCombatInventory();
     });
     const maxSlots = getCargoSize();
-    ov.innerHTML = `<div class="window window-inv" style="max-width:720px;max-height:85%;">
+    ov.innerHTML = `<div class="window" style="max-width:720px;max-height:85%;">
     <div class="title-bar">
       <div class="title-bar-text">📦 货舱管理 (${CombatCargo.length}/${maxSlots})</div>
       <div class="title-bar-controls">
@@ -73,9 +73,16 @@ export function openCombatInventory(): void {
     <div class="window-body">
       <div class="inv-layout">
         <div class="inv-left">
-          <div class="cargo-grid" id="cargo-combat-grid">${renderCombatCargoGrid()}</div>
+          <div class="inv-grid-wrap">
+            <div class="cargo-grid" id="cargo-combat-grid">${renderCombatCargoGrid()}</div>
+          </div>
         </div>
-        <div class="inv-right" id="cargo-combat-detail">${renderCombatCargoDetail()}</div>
+        <div class="inv-right">
+          <fieldset class="ws-detail-box"><legend>详情</legend>
+            <div id="cargo-combat-detail">${renderCombatCargoDetailContent()}</div>
+            <div id="cargo-combat-actions" class="detail-actions">${renderCombatCargoDetailActions()}</div>
+          </fieldset>
+        </div>
       </div>
     </div>
   </div>`;
@@ -103,8 +110,9 @@ export function renderCombatCargoGrid(): string {
     return html;
 }
 
-export function renderCombatCargoDetail(): string {
-    if (_cargoSelectedIdx === null || !CombatCargo[_cargoSelectedIdx]) return '';
+export function renderCombatCargoDetailContent(): string {
+    if (_cargoSelectedIdx === null || !CombatCargo[_cargoSelectedIdx])
+        return '<div class="iv-detail empty">从左侧选择一个物品查看详情</div>';
     const item = CombatCargo[_cargoSelectedIdx];
     const qCls = qualityClass(item.quality || 'common');
     let propsHtml = renderEquipProps(item);
@@ -121,11 +129,12 @@ export function renderCombatCargoDetail(): string {
     ${propsHtml}
     <div class="detail-stat-list">
       <div class="field-row"><label>数量</label><span>${item.qty || 1}</span></div>
-    </div>
-    <div class="detail-spacer"></div>
-    <div class="detail-actions">
-      <button data-action="discard-cargo">🗑 丢弃</button>
     </div>`;
+}
+
+export function renderCombatCargoDetailActions(): string {
+    if (_cargoSelectedIdx === null || !CombatCargo[_cargoSelectedIdx]) return '';
+    return '<button data-action="discard-cargo">🗑 丢弃</button>';
 }
 
 export function selectCargoItem(idx: number): void {
@@ -158,7 +167,12 @@ export function refreshCombatCargoUI(): void {
     const grid = document.getElementById('cargo-combat-grid');
     if (grid) grid.innerHTML = renderCombatCargoGrid();
     const detail = document.getElementById('cargo-combat-detail');
-    if (detail) detail.innerHTML = renderCombatCargoDetail();
+    if (detail) detail.innerHTML = renderCombatCargoDetailContent();
+    const actions = document.getElementById('cargo-combat-actions');
+    if (actions) actions.innerHTML = renderCombatCargoDetailActions();
+    // Update title bar count
+    const tb = document.querySelector('#combat-inv-overlay .title-bar-text');
+    if (tb) tb.textContent = `📦 货舱管理 (${CombatCargo.length}/${getCargoSize()})`;
 }
 
 export function closeCombatInventory(): void {

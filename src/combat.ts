@@ -37,7 +37,7 @@ export { getGunPos, createPinball, createEnemy, spawnParticle, spawnDmgNumber } 
 export { startWave, spawnNextEnemy, firePinball, applyBuff, getBuffBonus, getFuelDropChance, tryDropLoot, generateRandomModule, processHitEnemy, getComboBonus } from './combat-systems.js';
 export { updateShip, updatePinballs, updateEnemies, updateFuelBlocks, updateBuffs, updateParticles, updateDmgNumbers, updateWave, updatePreviewLine } from './combat-update.js';
 export { showPauseMenu, closePauseMenu, openCombatInventory, closeCombatInventory, selectCargoItem, discardSelectedCargoItem, showEarlyEvacConfirm, closeEarlyEvacConfirm, updateHtmlHUD } from './combat-ui.js';
-export { renderCombatCargoGrid, renderCombatCargoDetail, refreshCombatCargoUI } from './combat-ui.js';
+export { renderCombatCargoGrid, renderCombatCargoDetailContent, renderCombatCargoDetailActions, refreshCombatCargoUI } from './combat-ui.js';
 
 // ============================================================
 // COMBAT LOOP
