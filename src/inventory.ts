@@ -490,12 +490,17 @@ export function getInventoryBody(): string {
     }).join('')}
         </div>
         ${renderWhFilterBar()}
-        <div role="tabpanel" class="window">
+        <div class="inv-grid-wrap">
           <div class="cargo-grid" id="wh-grid">${renderWhGrid()}</div>
           ${renderWhPagination()}
         </div>
       </div>
-      <div class="inv-right" id="wh-detail-panel" style="border-left:2px groove #fff;padding-left:8px">${renderWhDetail()}</div>
+      <div class="inv-right">
+        <fieldset class="ws-detail-box"><legend>详情</legend>
+          <div id="ws-detail">${renderWhDetailContent()}</div>
+          <div id="ws-actions" class="detail-actions">${renderWhDetailActions()}</div>
+        </fieldset>
+      </div>
     </div>
   `;
 }
@@ -505,9 +510,9 @@ export function whClearQuickSlot(idx: number): void {
     refreshWhUI();
     showToast('已清空随身道具栏');
 }
-export function renderWhDetail(): string {
+export function renderWhDetailContent(): string {
     if (!whSelected)
-        return '';
+        return '<div class="iv-detail empty">从左侧选择一个物品查看详情</div>';
     // === Quick Bar item detail ===
     if (whSelected.source === 'quickbar') {
         const slot = GS.quickBar[whSelected.slot!];
@@ -530,10 +535,6 @@ export function renderWhDetail(): string {
       ${item.desc ? `<p>${item.desc}</p>` : ''}
       <div class="detail-stat-list">
         <div class="field-row"><label>携带上限</label><span>${carryMaxStr}</span></div>
-      </div>
-      <div class="detail-spacer"></div>
-      <div class="detail-actions">
-        <button onclick="whRemoveFromQuickBar()">🔓 从随身栏卸下</button>
       </div>`;
     }
     // === Equipment slot detail ===
@@ -562,11 +563,7 @@ export function renderWhDetail(): string {
         </div>
       </div>
       ${propsHtml}
-      ${item.desc ? `<p>${item.desc}</p>` : ''}
-      <div class="detail-spacer"></div>
-      <div class="detail-actions">
-        <button onclick="whUnequipSlot('${whSelected.slotKey}')">🔓 卸下模块</button>
-      </div>`;
+      ${item.desc ? `<p>${item.desc}</p>` : ''}`;
     }
     // === Warehouse item detail ===
     const list = whFilteredList();
@@ -575,21 +572,6 @@ export function renderWhDetail(): string {
         return '';
     let propsHtml = renderEquipProps(item);
     let compareHtml = renderEquipCompare(item);
-    let isEquipped = isItemEquipped(item);
-    let actionsHtml = '';
-    if (item.type === 'weapon' || item.type === 'ball' || item.type === 'storage' || item.type === 'accessory' || item.type === 'equip') {
-        actionsHtml += `<button onclick="whEquipItem()" ${isEquipped ? 'disabled' : ''}>${isEquipped ? '已嵌入' : '⚡ 嵌入'}</button>`;
-    }
-    if (item.type === 'consumable' || item.type === 'item') {
-        const inQuickBar = isItemInQuickBar(item);
-        if (inQuickBar) {
-            actionsHtml += `<button onclick="whRemoveItemFromQuickBar('${item.id}')">🔓 从随身栏取出</button>`;
-        }
-        else {
-            actionsHtml += `<button onclick="whSetQuickBar()">🎒 随身携带</button>`;
-        }
-    }
-    actionsHtml += `<button class="detail-btn danger" onclick="whSellItem()" ${isEquipped ? 'disabled' : ''}>💰 出售</button>`;
     let extraStats = '';
     if ((item.type === 'consumable' || item.type === 'item') && item.carryMax) {
         extraStats = `<div class="detail-stat-list"><div class="field-row"><label>携带上限</label><span>${item.carryMax}</span></div></div>`;
@@ -605,10 +587,46 @@ export function renderWhDetail(): string {
     </div>
     ${propsHtml}
     ${extraStats}
-    ${compareHtml}
-    <div class="detail-spacer"></div>
-    <div class="detail-actions">${actionsHtml}</div>
-  `;
+    ${compareHtml}`;
+}
+
+export function renderWhDetailActions(): string {
+    if (!whSelected)
+        return '';
+    // === Quick Bar item detail ===
+    if (whSelected.source === 'quickbar') {
+        const slot = GS.quickBar[whSelected.slot!];
+        if (!slot || !slot.itemId)
+            return '';
+        return '<button onclick="whRemoveFromQuickBar()">🔓 从随身栏卸下</button>';
+    }
+    // === Equipment slot detail ===
+    if (whSelected.source === 'equip') {
+        const item = whGetEquippedItem(whSelected.slotKey!);
+        if (!item)
+            return '';
+        return `<button onclick="whUnequipSlot('${whSelected.slotKey}')">🔓 卸下模块</button>`;
+    }
+    // === Warehouse item detail ===
+    const list = whFilteredList();
+    const item = list[whSelected.index!] as WarehouseItem | undefined;
+    if (!item)
+        return '';
+    const isEquipped = isItemEquipped(item);
+    let actionsHtml = '';
+    if (item.type === 'weapon' || item.type === 'ball' || item.type === 'storage' || item.type === 'accessory' || item.type === 'equip') {
+        actionsHtml += `<button onclick="whEquipItem()" ${isEquipped ? 'disabled' : ''}>${isEquipped ? '已嵌入' : '⚡ 嵌入'}</button>`;
+    }
+    if (item.type === 'consumable' || item.type === 'item') {
+        const inQuickBar = isItemInQuickBar(item);
+        if (inQuickBar) {
+            actionsHtml += `<button onclick="whRemoveItemFromQuickBar('${item.id}')">🔓 从随身栏取出</button>`;
+        } else {
+            actionsHtml += `<button onclick="whSetQuickBar()">🎒 随身携带</button>`;
+        }
+    }
+    actionsHtml += `<button class="detail-btn danger" onclick="whSellItem()" ${isEquipped ? 'disabled' : ''}>💰 出售</button>`;
+    return actionsHtml;
 }
 export function refreshWhUI(): void {
     const grid = document.getElementById('wh-grid');
@@ -626,9 +644,12 @@ export function refreshWhUI(): void {
     const cashEl = document.getElementById('wh-cash');
     if (cashEl)
         cashEl.textContent = GS.cash.toLocaleString();
-    const panel = document.getElementById('wh-detail-panel');
-    if (panel)
-        panel.innerHTML = renderWhDetail();
+    const detailEl = document.getElementById('ws-detail');
+    if (detailEl)
+        detailEl.innerHTML = renderWhDetailContent();
+    const actionsEl = document.getElementById('ws-actions');
+    if (actionsEl)
+        actionsEl.innerHTML = renderWhDetailActions();
     // Refresh equipment section
     // Rebuild entire inventory body since equipment might have changed
     const wb = document.querySelector('#window-overlay .window-body');
