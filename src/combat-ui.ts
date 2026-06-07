@@ -73,14 +73,14 @@ export function openCombatInventory(): void {
     <div class="window-body">
       <div class="inv-layout">
         <div class="inv-left">
-          <div class="inv-grid-wrap">
+          <div class="window" role="tabpanel">
             <div class="cargo-grid" id="cargo-combat-grid">${renderCombatCargoGrid()}</div>
           </div>
         </div>
         <div class="inv-right">
           <fieldset class="ws-detail-box"><legend>详情</legend>
-            <div id="cargo-combat-detail">${renderCombatCargoDetailContent()}</div>
-            <div id="cargo-combat-actions" class="detail-actions">${renderCombatCargoDetailActions()}</div>
+            <div id="ws-detail">${renderCombatCargoDetailContent()}</div>
+            <div id="ws-actions" class="detail-actions">${renderCombatCargoDetailActions()}</div>
           </fieldset>
         </div>
       </div>
@@ -166,9 +166,9 @@ export function discardSelectedCargoItem(): void {
 export function refreshCombatCargoUI(): void {
     const grid = document.getElementById('cargo-combat-grid');
     if (grid) grid.innerHTML = renderCombatCargoGrid();
-    const detail = document.getElementById('cargo-combat-detail');
+    const detail = document.getElementById('ws-detail');
     if (detail) detail.innerHTML = renderCombatCargoDetailContent();
-    const actions = document.getElementById('cargo-combat-actions');
+    const actions = document.getElementById('ws-actions');
     if (actions) actions.innerHTML = renderCombatCargoDetailActions();
     // Update title bar count
     const tb = document.querySelector('#combat-inv-overlay .title-bar-text');

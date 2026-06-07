@@ -490,10 +490,10 @@ export function getInventoryBody(): string {
     }).join('')}
         </div>
         ${renderWhFilterBar()}
-        <div class="inv-grid-wrap">
+        <div class="window" role="tabpanel">
           <div class="cargo-grid" id="wh-grid">${renderWhGrid()}</div>
-          ${renderWhPagination()}
         </div>
+        ${renderWhPagination()}
       </div>
       <div class="inv-right">
         <fieldset class="ws-detail-box"><legend>详情</legend>

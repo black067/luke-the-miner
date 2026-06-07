@@ -64,7 +64,7 @@ export function renderShopGrid(): string {
         if (item) {
             const sel = (shopSelected !== null && shopSelected === gidx) ? ' selected' : '';
             const price = item.priceBtc || 50;
-            h += `<div class="shop-cell${sel}" onclick="shopSelectItem(${gidx})">
+            h += `<div class="cargo-cell${sel}" onclick="shopSelectItem(${gidx})">
         <div class="cell-quality-dot ${qualityDotClass(item.quality || 'common')}"></div>
         <div class="cell-icon">${item.icon || '📦'}</div>
         <div class="cell-name ${qualityClass(item.quality || 'common')}">${item.name}</div>
@@ -72,13 +72,13 @@ export function renderShopGrid(): string {
       </div>`;
         }
         else {
-            h += '<div class="shop-cell empty"></div>';
+            h += '<div class="cargo-cell empty"></div>';
         }
     }
     return h;
 }
 export function renderShopPagination(): string {
-    return renderPagination(shopFilteredList().length, shopPage, SHOP_PAGE_SIZE, 'shopGoPage');
+    return renderPagination(shopFilteredList().length, shopPage, SHOP_PAGE_SIZE, 'shopGoPage', 'shop-pagination');
 }
 export function shopSetFilter(f: string): void { shopFilter = f; shopPage = 0; shopSelected = null; refreshShopUI(); }
 export function shopGoPage(p: number): void { shopPage = Math.max(0, p); shopSelected = null; refreshShopUI(); }
@@ -110,28 +110,31 @@ export function refreshShopUI(): void {
         grid.innerHTML = renderShopGrid();
     const pag = document.getElementById('shop-pagination');
     if (pag)
-        pag.innerHTML = renderShopPagination();
+        pag.outerHTML = renderShopPagination();
     const filter = document.querySelector('#window-overlay .inv-filter-bar');
     if (filter && currentWindowType === 'Okayzon')
         filter.outerHTML = renderShopFilterBar();
     const btcEl = document.getElementById('shop-btc');
     if (btcEl)
         btcEl.textContent = GS.bitcoin.toLocaleString();
-    const panel = document.getElementById('shop-detail-panel');
-    if (!panel)
+    const detail = document.getElementById('ws-detail');
+    const actions = document.getElementById('ws-actions');
+    if (!detail || !actions)
         return;
     if (shopSelected === null) {
-        panel.innerHTML = '';
+        detail.innerHTML = '<div class="iv-detail empty">从左侧选择一个物品查看详情</div>';
+        actions.innerHTML = '';
         return;
     }
     const list = shopFilteredList();
     const item = list[shopSelected];
     if (!item) {
-        panel.innerHTML = '';
+        detail.innerHTML = '<div class="iv-detail empty">物品不存在</div>';
+        actions.innerHTML = '';
         return;
     }
     const price = item.priceBtc || 50;
-    panel.innerHTML = `
+    detail.innerHTML = `
     <div class="detail-header">
       <div class="detail-icon">${item.icon || '📦'}</div>
       <div class="detail-info">
@@ -141,11 +144,9 @@ export function refreshShopUI(): void {
       </div>
     </div>
     ${renderEquipProps(item)}
-    ${item.carryMax ? `<div class="detail-stat-list"><div class="field-row"><label>携带上限</label><span>${item.carryMax}</span></div></div>` : ''}
-    <div class="detail-spacer"></div>
-    <div class="detail-actions">
-      <button class="detail-btn primary" onclick="buyShopItem()">💰 购买  ₿${price.toLocaleString()}</button>
-    </div>`;
+    ${item.carryMax ? `<div class="detail-stat-list"><div class="field-row"><label>携带上限</label><span>${item.carryMax}</span></div></div>` : ''}`;
+    actions.innerHTML = `
+      <button class="detail-btn primary" onclick="buyShopItem()">💰 购买  ₿${price.toLocaleString()}</button>`;
 }
 export function getOkayzonBody(): string {
     shopFilter = 'modules';
@@ -158,12 +159,17 @@ export function getOkayzonBody(): string {
           <div class="cur-item"><span class="cur-label">₿ 比特币</span><span class="cur-val" id="shop-btc">${GS.bitcoin.toLocaleString()}</span></div>
         </div>
         ${renderShopFilterBar()}
-        <div role="tabpanel" class="window">
-          <div class="shop-grid" id="shop-grid">${renderShopGrid()}</div>
-          <div class="inv-pagination" id="shop-pagination">${renderShopPagination()}</div>
+        <div class="window" role="tabpanel">
+          <div class="cargo-grid" id="shop-grid">${renderShopGrid()}</div>
         </div>
+        ${renderShopPagination()}
       </div>
-      <div class="inv-right" id="shop-detail-panel"></div>
+      <div class="inv-right">
+        <fieldset class="ws-detail-box"><legend>详情</legend>
+          <div id="ws-detail"><div class="iv-detail empty">从左侧选择一个物品查看详情</div></div>
+          <div id="ws-actions" class="detail-actions"></div>
+        </fieldset>
+      </div>
     </div>
   `;
 }
@@ -198,7 +204,7 @@ export function renderUgShopGrid(): string {
         if (item) {
             const sel = (ugShopSelected !== null && ugShopSelected === gidx) ? ' selected' : '';
             const price = item.priceBtc ? Math.floor(item.priceBtc * 3) : 500; // Cash prices are higher
-            h += `<div class="shop-cell${sel}" onclick="ugSelectShopItem(${gidx})">
+            h += `<div class="cargo-cell${sel}" onclick="ugSelectShopItem(${gidx})">
         <div class="cell-quality-dot ${qualityDotClass(item.quality || 'common')}"></div>
         <div class="cell-icon">${item.icon || '📦'}</div>
         <div class="cell-name ${qualityClass(item.quality || 'common')}">${item.name}</div>
@@ -206,13 +212,13 @@ export function renderUgShopGrid(): string {
       </div>`;
         }
         else {
-            h += '<div class="shop-cell empty"></div>';
+            h += '<div class="cargo-cell empty"></div>';
         }
     }
     return h;
 }
 export function renderUgPagination(): string {
-    return renderPagination(ugShopFilteredList().length, ugShopPage, UG_PAGE_SIZE, 'ugGoPage');
+    return renderPagination(ugShopFilteredList().length, ugShopPage, UG_PAGE_SIZE, 'ugGoPage', 'ug-pagination');
 }
 export function ugSetFilter(f: string): void { ugShopFilter = f; ugShopPage = 0; ugShopSelected = null; refreshUgUI(); }
 export function ugGoPage(p: number): void { ugShopPage = Math.max(0, p); ugShopSelected = null; refreshUgUI(); }
@@ -261,8 +267,9 @@ export function ugUpdateTabSelection(): void {
 }
 export function refreshUgUI(): void {
     const left = document.getElementById('ug-left');
-    const right = document.getElementById('ug-detail-panel');
-    if (!left || !right)
+    const detail = document.getElementById('ws-detail');
+    const actions = document.getElementById('ws-actions');
+    if (!left || !detail || !actions)
         return;
     // Update tabs
     ugUpdateTabSelection();
@@ -272,20 +279,24 @@ export function refreshUgUI(): void {
         <div class="cur-item"><span class="cur-label">💵 现金</span><span class="cur-val" id="ug-cash">${GS.cash.toLocaleString()}</span></div>
       </div>
       ${renderUgShopFilterBar()}
-      <div class="shop-grid" id="ug-shop-grid">${renderUgShopGrid()}</div>
-      <div class="inv-pagination" id="ug-pagination">${renderUgPagination()}</div>`;
+      <div class="window">
+        <div class="cargo-grid" id="ug-shop-grid">${renderUgShopGrid()}</div>
+      </div>
+      ${renderUgPagination()}</div>`;
         if (ugShopSelected === null) {
-            right.innerHTML = '';
+            detail.innerHTML = '<div class="iv-detail empty">从左侧选择一个物品查看详情</div>';
+            actions.innerHTML = '';
             return;
         }
         const list = ugShopFilteredList();
         const item = list[ugShopSelected];
         if (!item) {
-            right.innerHTML = '';
+            detail.innerHTML = '<div class="iv-detail empty">物品不存在</div>';
+            actions.innerHTML = '';
             return;
         }
         const price = item.priceBtc ? Math.floor(item.priceBtc * 3) : 500;
-        right.innerHTML = `
+        detail.innerHTML = `
       <div class="detail-header">
         <div class="detail-icon">${item.icon || '📦'}</div>
         <div class="detail-info">
@@ -294,11 +305,9 @@ export function refreshUgUI(): void {
           ${qualityBadge(item.quality || 'common')}
         </div>
       </div>
-      ${renderEquipProps(item)}
-      <div class="detail-spacer"></div>
-      <div class="detail-actions">
-        <button class="detail-btn primary" onclick="ugBuyItem()" ${GS.cash < price ? 'disabled' : ''}>💰 购买  💵${price.toLocaleString()}</button>
-      </div>`;
+      ${renderEquipProps(item)}`;
+        actions.innerHTML = `
+        <button class="detail-btn primary" onclick="ugBuyItem()" ${GS.cash < price ? 'disabled' : ''}>💰 购买  💵${price.toLocaleString()}</button>`;
     }
     else {
         // Orders tab
@@ -317,13 +326,14 @@ export function refreshUgUI(): void {
         ordersHtml += '</div>';
         left.innerHTML = ordersHtml;
         if (ugOrderSelected === null) {
-            right.innerHTML = '';
+            detail.innerHTML = '';
+            actions.innerHTML = '';
             return;
         }
         const order = DATA.UG_ORDERS[ugOrderSelected];
         const have = countInWarehouse(order.wantMatId);
         const canFulfill = have >= order.wantQty;
-        right.innerHTML = `
+        detail.innerHTML = `
       <div class="detail-header">
         <div class="detail-icon">📋</div>
         <div class="detail-info">
@@ -336,11 +346,9 @@ export function refreshUgUI(): void {
         <div class="field-row"><label>仓库持有</label><span style="color:${canFulfill ? '#0f0' : '#f55'}">${have}</span></div>
         <div class="field-row"><label>需要数量</label><span>${order.wantQty}</span></div>
         <div class="field-row"><label>报酬</label><span style="color:#0f0;">💵 +${order.rewardCash.toLocaleString()}</span></div>
-      </div>
-      <div class="detail-spacer"></div>
-      <div class="detail-actions">
-        <button class="detail-btn primary" onclick="ugFulfillOrder()" ${!canFulfill ? 'disabled' : ''}>📤 交付订单</button>
       </div>`;
+        actions.innerHTML = `
+        <button class="detail-btn primary" onclick="ugFulfillOrder()" ${!canFulfill ? 'disabled' : ''}>📤 交付订单</button>`;
     }
 }
 export function getUndergroundBody(): string {
@@ -354,17 +362,24 @@ export function getUndergroundBody(): string {
       <li role="tab" aria-selected="true" data-tab="shop" onclick="ugSwitchTab('shop')"><a href="#ug">🛒 商品</a></li>
       <li role="tab" data-tab="orders" onclick="ugSwitchTab('orders')"><a href="#ug">📋 收购</a></li>
     </menu>
-    <div class="window">
-      <div role="tabpanel" class="inv-layout">
+    <div class="window" role="tabpanel">
+      <div class="inv-layout">
         <div class="inv-left" id="ug-left">
           <div class="inv-currency">
             <div class="cur-item"><span class="cur-label">💵 现金</span><span class="cur-val" id="ug-cash">${GS.cash.toLocaleString()}</span></div>
           </div>
           ${renderUgShopFilterBar()}
-          <div class="shop-grid" id="ug-shop-grid">${renderUgShopGrid()}</div>
-          <div class="inv-pagination" id="ug-pagination">${renderUgPagination()}</div>
+          <div class="window">
+            <div class="cargo-grid" id="ug-shop-grid">${renderUgShopGrid()}</div>
+          </div>
+          ${renderUgPagination()}
         </div>
-        <div class="inv-right" id="ug-detail-panel"></div>
+        <div class="inv-right">
+          <fieldset class="ws-detail-box"><legend>详情</legend>
+            <div id="ws-detail"><div class="iv-detail empty">从左侧选择一个物品查看详情</div></div>
+            <div id="ws-actions" class="detail-actions"></div>
+          </fieldset>
+        </div>
       </div>
     </div>
   `;

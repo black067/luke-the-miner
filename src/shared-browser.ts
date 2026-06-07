@@ -51,9 +51,10 @@ export function renderFilterBar(currentFilter: string, extraHtml: string = ''): 
  * @param {string} goPageFn — global onclick handler name, e.g. 'whGoPage'
  * @returns {string} HTML
  */
-export function renderPagination(totalItems: number, page: number, pageSize: number, goPageFn: string): string {
+export function renderPagination(totalItems: number, page: number, pageSize: number, goPageFn: string, id?: string): string {
     const total = Math.ceil(totalItems / pageSize) || 1;
-    return `<div class="inv-pagination">
+    const idAttr = id ? ` id="${id}"` : '';
+    return `<div class="inv-pagination"${idAttr}>
     <button class="page-btn" onclick="${goPageFn}(${page - 1})" ${page <= 0 ? 'disabled' : ''}>◀</button>
     <span style="padding:0 4px">${page + 1}/${total}</span>
     <button class="page-btn" onclick="${goPageFn}(${page + 1})" ${page >= total - 1 ? 'disabled' : ''}>▶</button>

@@ -92,7 +92,8 @@
 .inv-layout { display: flex; gap: 1px; flex: 1; min-height: 0; }
 .inv-left { flex: 1 1 60%; display: flex; flex-direction: column; min-height: 0; }
 .inv-right { flex: 1 1 40%; display: flex; flex-direction: column; min-height: 0; }
-.inv-grid-wrap { flex: 1; display: flex; flex-direction: column; min-height: 0; position: relative; z-index: 2; }
+.inv-layout .window[role="tabpanel"],
+.window-body > .window[role="tabpanel"] { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 
 .inv-section-title { margin: 4px 0; }
 .inv-currency { display: flex; gap: 12px; margin-bottom: 4px; }
@@ -108,8 +109,7 @@
 
 /* Quality dot (shared positioning across all cell types) */
 .equip-slot .quality-dot,
-.cargo-cell .cell-quality-dot,
-.shop-cell .cell-quality-dot { position: absolute; top: 1px; right: 1px; width: 5px; height: 5px; border-radius: 50%; }
+.cargo-cell .cell-quality-dot { position: absolute; top: 1px; right: 1px; width: 5px; height: 5px; border-radius: 50%; }
 
 /* Quality colors (data visualization, not in 98.css) */
 .quality-common { background: #888; }
@@ -128,14 +128,14 @@
 .quick-slot .qk-qty { position: absolute; bottom: 1px; right: 2px; }
 .quick-slot .qk-name { max-width: 38px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* Grid cells */
-.cargo-grid, .shop-grid { flex: 1; align-content: start; display: grid; grid-template-columns: repeat(6,1fr); gap: 2px; margin-bottom: 4px; grid-auto-rows: 52px; min-height: 0; overflow-y: auto; }
-.cargo-cell, .shop-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid; border-color: #808080 #fff #fff #808080; background: #fff; cursor: pointer; position: relative; overflow: hidden; padding: 2px; }
-.cargo-cell.selected, .shop-cell.selected { background: #000080; color: #fff; }
-.cargo-cell.selected .cell-name, .shop-cell.selected .cell-name { color: #fff; }
+/* Grid cells (unified: inventory / combat cargo / shop / black market) */
+.cargo-grid { flex: 1; align-content: start; display: grid; grid-template-columns: repeat(6,1fr); gap: 2px; margin-bottom: 4px; grid-auto-rows: 52px; min-height: 0; overflow-y: auto; }
+.cargo-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid; border-color: #808080 #fff #fff #808080; background: #fff; cursor: pointer; position: relative; overflow: hidden; padding: 2px; }
+.cargo-cell.selected { background: #000080; color: #fff; }
+.cargo-cell.selected .cell-name { color: #fff; }
 .cargo-cell .cell-qty,
-.shop-cell .cell-price { position: absolute; bottom: 1px; right: 2px; }
-.cargo-cell .cell-name, .shop-cell .cell-name { max-width: 48px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+.cargo-cell .cell-price { position: absolute; bottom: 1px; right: 2px; }
+.cargo-cell .cell-name { max-width: 48px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
 
 /* === BLACK MARKET ORDERS === */
 .ug-orders-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; min-height: 0; }
