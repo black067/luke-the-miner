@@ -23,6 +23,8 @@ export function showSettings(from: string): void {
     const sel = document.getElementById('clippy-agent-select');
     if (sel)
         (sel as HTMLSelectElement).value = GS.settings.clippyAgent || 'Merlin';
+    // Sync volume sliders & labels
+    syncVolumeUI();
     // Sync shake intensity slider
     const shakeSlider = document.querySelector('#settings-screen input[data-action="set-shake-intensity"]') as HTMLInputElement;
     if (shakeSlider) {
@@ -30,6 +32,9 @@ export function showSettings(from: string): void {
         const label = document.getElementById('shake-intensity-val');
         if (label) label.textContent = (GS.settings.shakeIntensity ?? 100) + '%';
     }
+    // Sync CRT checkbox
+    const crtCheck = document.querySelector('#settings-screen input[data-action="toggle-crt-filter"]') as HTMLInputElement;
+    if (crtCheck) crtCheck.checked = (GS.settings.crtFilter ?? 80) > 0;
 }
 export function closeSettings(): void {
     UI.click();
@@ -61,6 +66,43 @@ export function setVolume(type: string, val: string): void {
     else if (type === 'master') {
         dispatch({ type: 'SET_MASTER_VOLUME', volume: vol });
     }
+    // Update value label
+    const labelId = type === 'master' ? 'master-vol-val' : 'sfx-vol-val';
+    const label = document.getElementById(labelId);
+    if (label) label.textContent = vol + '%';
+}
+
+/** Sync volume slider positions & labels from GS on settings open. */
+function syncVolumeUI(): void {
+    const masterSlider = document.querySelector('#settings-screen input[data-action-arg="master"]') as HTMLInputElement;
+    if (masterSlider) {
+        masterSlider.value = String(GS.settings.masterVolume ?? 80);
+        const label = document.getElementById('master-vol-val');
+        if (label) label.textContent = (GS.settings.masterVolume ?? 80) + '%';
+    }
+    const sfxSlider = document.querySelector('#settings-screen input[data-action-arg="sfx"]') as HTMLInputElement;
+    if (sfxSlider) {
+        sfxSlider.value = String(GS.settings.sfxVolume ?? 90);
+        const label = document.getElementById('sfx-vol-val');
+        if (label) label.textContent = (GS.settings.sfxVolume ?? 90) + '%';
+    }
+}
+
+export function toggleCrtFilter(checked: boolean): void {
+    dispatch({ type: 'SET_CRT_FILTER', value: checked ? 80 : 0 });
+    const crt = document.getElementById('app');
+    if (crt) {
+        if (checked) crt.classList.remove('no-crt');
+        else crt.classList.add('no-crt');
+    }
+}
+
+/** Apply CRT filter state from GS on app startup. */
+export function applyCrtFilter(): void {
+    const crt = document.getElementById('app');
+    if (!crt) return;
+    if ((GS.settings.crtFilter ?? 80) > 0) crt.classList.remove('no-crt');
+    else crt.classList.add('no-crt');
 }
 export function syncCombatCanvasZoom(): void {
     // Stub - combat canvas zoom sync is handled by combat module

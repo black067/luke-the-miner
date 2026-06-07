@@ -144,6 +144,8 @@ export function gsReducer(state: GameStateObj, action: GSAction): GameStateObj {
             return { ...state, settings: { ...state.settings, clippyAgent: action.agent } };
         case 'SET_SHAKE_INTENSITY':
             return { ...state, settings: { ...state.settings, shakeIntensity: action.value } };
+        case 'SET_CRT_FILTER':
+            return { ...state, settings: { ...state.settings, crtFilter: action.value } };
         case 'RESET_GAME':
             return { ...DEFAULT_GS, upgrades: new Set(), equipment: { weapon: null, ball: null, storage: null, accessories: [null, null, null] }, warehouse: [] };
         default:

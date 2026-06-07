@@ -226,26 +226,38 @@
       </menu>
       <div role="tabpanel" class="window">
         <div role="tabpanel" id="settings-tab-game">
-          <div class="field-row"><label>主音量</label><input type="range" min="0" max="100" value="80" data-action="set-volume" data-action-arg="master"></div>
-          <div class="field-row"><label>音效音量</label><input type="range" min="0" max="100" value="90" data-action="set-volume" data-action-arg="sfx"></div>
-          <div class="field-row"><label>CRT 滤镜</label><input type="range" min="0" max="100" value="80"></div>
+          <div style="max-width: 380px;">
+          <div class="field-row">
+            <label>主音量</label>
+            <input type="range" min="0" max="100" value="80" data-action="set-volume" data-action-arg="master">
+            <span id="master-vol-val" class="field-row-val">80%</span>
+          </div>
+          <div class="field-row">
+            <label>音效音量</label>
+            <input type="range" min="0" max="100" value="90" data-action="set-volume" data-action-arg="sfx">
+            <span id="sfx-vol-val" class="field-row-val">90%</span>
+          </div>
+          <div class="field-row">
+            <label style="margin-right: 6px;">CRT 滤镜</label>
+            <input type="checkbox" id="crt-filter-cb" data-action="toggle-crt-filter" checked>
+            <label for="crt-filter-cb"></label>
+          </div>
           <div class="field-row">
             <label>震动强度</label>
-            <span>
-              <input type="range" min="0" max="200" value="100" data-action="set-shake-intensity" style="width:120px;">
-              <span id="shake-intensity-val" style="padding: 0 4px;">100%</span>
-            </span>
+            <input type="range" min="0" max="200" value="100" data-action="set-shake-intensity">
+            <span id="shake-intensity-val" class="field-row-val">100%</span>
           </div>
           <div class="field-row">
             <label>界面缩放</label>
             <span>
               <button class="button-min" data-action="adjust-ui-scale" data-action-arg="-10">−</button>
-              <span id="ui-scale-val" style="padding: 0 8px;">100%</span>
+              <span id="ui-scale-val" class="field-row-val">100%</span>
               <button class="button-min" data-action="adjust-ui-scale" data-action-arg="10">+</button>
             </span>
           </div>
           <div class="field-row"><label>语言</label><select><option>简体中文</option><option>English</option></select></div>
           <div class="field-row"><label>桌面助手</label><select id="clippy-agent-select" data-action="switch-clippy"><option value="Clippy">📎 Clippy</option><option value="Merlin">🧙 Merlin</option><option value="Bonzi">🟣 Bonzi</option><option value="F1">🤖 F1</option><option value="Genie">🧞 Genie</option><option value="Genuis">🎓 Genuis</option><option value="Links">🐱 Links</option><option value="Peedy">🦜 Peedy</option><option value="Rocky">🐶 Rocky</option><option value="Rover">🐕 Rover</option></select></div>
+          </div>
         </div>
         <div role="tabpanel" id="settings-tab-control" style="display:none;">
           <div class="field-row"><label>发射按键</label><span>鼠标左键</span></div>

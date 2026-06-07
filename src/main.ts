@@ -10,7 +10,7 @@ import { showIntro } from './intro.js';
 import {
   showSettings, closeSettings, switchSettingsTab, setVolume,
   setUIScale, adjustUIScale, applyUIScale, unlockAllFeatures,
-  giveRandomItem, clearCacheAndReset, syncCombatCanvasZoom, setShakeIntensity
+  giveRandomItem, clearCacheAndReset, syncCombatCanvasZoom, setShakeIntensity, toggleCrtFilter, applyCrtFilter,
 } from './settings.js';
 import {
   showDesktop, renderAreaList, selectArea, goToWork, powerOff,
@@ -60,7 +60,7 @@ Object.assign(window, {
   // settings
   showSettings, closeSettings, switchSettingsTab, setVolume,
   setUIScale, adjustUIScale, applyUIScale, unlockAllFeatures,
-  giveRandomItem, clearCacheAndReset, syncCombatCanvasZoom, setShakeIntensity,
+  giveRandomItem, clearCacheAndReset, syncCombatCanvasZoom, setShakeIntensity, toggleCrtFilter,
   // desktop
   showDesktop, renderAreaList, selectArea, goToWork, powerOff,
   toggleStartMenu, closeStartMenu, updateTaskbar, updateClock,
@@ -173,6 +173,9 @@ function initEventDelegation(): void {
       case 'set-shake-intensity':
         setShakeIntensity((e.target as HTMLInputElement).value);
         break;
+      case 'toggle-crt-filter':
+        toggleCrtFilter((e.target as HTMLInputElement).checked);
+        break;
       case 'switch-clippy':
         switchClippyAgent((e.target as HTMLSelectElement).value);
         break;
@@ -203,6 +206,7 @@ const App = {
     initEventDelegation();
     const hasSave = loadGame();
     applyUIScale();
+    applyCrtFilter();
     if (!hasSave) {
       initNewGame();
     }
