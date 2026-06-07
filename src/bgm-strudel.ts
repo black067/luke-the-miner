@@ -277,7 +277,12 @@ export const BGM = {
         if (_currentTrack === track) return;
         if (!_loaded) {
             _pendingTrack = track;
-            if (!_loading) BGM.init();
+            if (!_loading) {
+                BGM.init().catch((err: unknown) => {
+                    console.warn('BGM: init failed', err);
+                    _loading = false;
+                });
+            }
             return;
         }
 
@@ -292,7 +297,9 @@ export const BGM = {
 
     stop(): void {
         _silence();
-        _pendingTrack = null;
+        if (!_loading) {
+            _pendingTrack = null;
+        }
     },
 
     updateVolume(): void {

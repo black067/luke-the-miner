@@ -218,6 +218,7 @@ const App = {
   showToast,
   init() {
     SFX.init();
+    BGM.init(); // Preload BGM early so it's ready when entering combat/desktop
     initEventDelegation();
     const hasSave = loadGame();
     applyUIScale();
