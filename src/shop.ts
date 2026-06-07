@@ -208,7 +208,7 @@ export function renderUgShopGrid(): string {
         <div class="cell-quality-dot ${qualityDotClass(item.quality || 'common')}"></div>
         <div class="cell-icon">${item.icon || '📦'}</div>
         <div class="cell-name ${qualityClass(item.quality || 'common')}">${item.name}</div>
-        <div class="cell-price" style="color:#0f0;">💵${price.toLocaleString()}</div>
+        <div class="cell-price" style="color:#0f0;">$${price.toLocaleString()}</div>
       </div>`;
         }
         else {
@@ -239,7 +239,7 @@ export function ugBuyItem(): void {
     addToWarehouse({ ...item, qty: 1 });
     updateTaskbar();
     refreshUgUI();
-    showToast(`购买成功！${item.name}  💵-${price.toLocaleString()}`);
+    showToast(`购买成功！${item.name}  $-${price.toLocaleString()}`);
 }
 export function ugSelectOrder(idx: number): void { ugOrderSelected = (ugOrderSelected === idx) ? null : idx; refreshUgUI(); }
 export function ugFulfillOrder(): void {
@@ -257,7 +257,7 @@ export function ugFulfillOrder(): void {
     dispatch({ type: 'ADD_CASH', amount: order.rewardCash });
     updateTaskbar();
     refreshUgUI();
-    showToast(`订单完成！${order.want} ×${order.wantQty}  💵+${order.rewardCash.toLocaleString()}`);
+    showToast(`订单完成！${order.want} ×${order.wantQty}  $+${order.rewardCash.toLocaleString()}`);
 }
 export function ugSwitchTab(tab: string): void { ugTab = tab; ugShopSelected = null; ugOrderSelected = null; refreshUgUI(); }
 export function ugUpdateTabSelection(): void {
@@ -276,7 +276,7 @@ export function refreshUgUI(): void {
     if (ugTab === 'shop') {
         left.innerHTML = `
       <div class="inv-currency">
-        <div class="cur-item"><span class="cur-label">💵 现金</span><span class="cur-val" id="ug-cash">${GS.cash.toLocaleString()}</span></div>
+        <div class="cur-item"><span class="cur-label">$ 现金</span><span class="cur-val" id="ug-cash">${GS.cash.toLocaleString()}</span></div>
       </div>
       ${renderUgShopFilterBar()}
       <div class="window">
@@ -307,11 +307,11 @@ export function refreshUgUI(): void {
       </div>
       ${renderEquipProps(item)}`;
         actions.innerHTML = `
-        <button class="detail-btn primary" onclick="ugBuyItem()" ${GS.cash < price ? 'disabled' : ''}>💰 购买  💵${price.toLocaleString()}</button>`;
+        <button class="detail-btn primary" onclick="ugBuyItem()" ${GS.cash < price ? 'disabled' : ''}>💰 购买  $${price.toLocaleString()}</button>`;
     }
     else {
         // Orders tab
-        let ordersHtml = `<div class="inv-currency"><div class="cur-item"><span class="cur-label">💵 现金</span><span class="cur-val">${GS.cash.toLocaleString()}</span></div></div>`;
+        let ordersHtml = `<div class="inv-currency"><div class="cur-item"><span class="cur-label">$ 现金</span><span class="cur-val">${GS.cash.toLocaleString()}</span></div></div>`;
         ordersHtml += '<div class="ug-orders-list">';
         DATA.UG_ORDERS.forEach((o, i) => {
             const have = countInWarehouse(o.wantMatId);
@@ -319,7 +319,7 @@ export function refreshUgUI(): void {
             const sel = ugOrderSelected === i ? ' selected' : '';
             ordersHtml += `<div class="ug-order-cell${sel}" onclick="ugSelectOrder(${i})">
         <span class="ug-order-name">${o.want} <span class="ug-order-qty">×${o.wantQty}</span></span>
-        <span class="ug-order-reward">💵+${o.rewardCash.toLocaleString()}</span>
+        <span class="ug-order-reward">$+${o.rewardCash.toLocaleString()}</span>
         <span class="ug-order-status ${canFulfill ? 'can-fulfill' : 'cannot-fulfill'}">${canFulfill ? '可交付' : '库存不足'}</span>
       </div>`;
         });
@@ -345,7 +345,7 @@ export function refreshUgUI(): void {
       <div class="detail-stat-list">
         <div class="field-row"><label>仓库持有</label><span style="color:${canFulfill ? '#0f0' : '#f55'}">${have}</span></div>
         <div class="field-row"><label>需要数量</label><span>${order.wantQty}</span></div>
-        <div class="field-row"><label>报酬</label><span style="color:#0f0;">💵 +${order.rewardCash.toLocaleString()}</span></div>
+        <div class="field-row"><label>报酬</label><span style="color:#0f0;">$ +${order.rewardCash.toLocaleString()}</span></div>
       </div>`;
         actions.innerHTML = `
         <button class="detail-btn primary" onclick="ugFulfillOrder()" ${!canFulfill ? 'disabled' : ''}>📤 交付订单</button>`;
@@ -366,7 +366,7 @@ export function getUndergroundBody(): string {
       <div class="inv-layout">
         <div class="inv-left" id="ug-left">
           <div class="inv-currency">
-            <div class="cur-item"><span class="cur-label">💵 现金</span><span class="cur-val" id="ug-cash">${GS.cash.toLocaleString()}</span></div>
+            <div class="cur-item"><span class="cur-label">$ 现金</span><span class="cur-val" id="ug-cash">${GS.cash.toLocaleString()}</span></div>
           </div>
           ${renderUgShopFilterBar()}
           <div class="window">

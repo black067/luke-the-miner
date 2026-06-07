@@ -14,6 +14,14 @@ import { C, CombatCargo } from './combat-state.js';
 // Module-scoped mutable state
 export let _combatInvActive: boolean = false;
 
+/** Cached max HP for detecting when segment size needs recalculation. */
+let _cachedMaxHp: number = 0;
+
+/** Bar width (px) — kept in sync with the inline style on .hud-hp-bar. */
+const HP_BAR_WIDTH = 70;
+/** Gap between segments (px). */
+const HP_SEG_GAP = 2;
+
 // ============================================================
 // COMBAT CENTER TOAST
 // ============================================================
@@ -257,7 +265,17 @@ export function updateHtmlHUD(): void {
     const totalEnemies = C.enemies.length + (C.wave.allSpawned ? 0 : C.wave.spawnQueue.length);
     // HP
     const hpFill = document.getElementById('hud-hp-fill');
-    if (hpFill) hpFill.style.width = (s.hp / maxHp * 100) + '%';
+    if (hpFill) {
+        hpFill.style.width = (s.hp / maxHp * 100) + '%';
+        // Recalculate segment size when max HP changes (upgrades, etc.)
+        if (maxHp !== _cachedMaxHp) {
+            _cachedMaxHp = maxHp;
+            const segSize = HP_BAR_WIDTH / maxHp;
+            const segFill = Math.max(1, segSize - HP_SEG_GAP);
+            hpFill.style.setProperty('--hp-seg-size', segSize + 'px');
+            hpFill.style.setProperty('--hp-seg-fill', segFill + 'px');
+        }
+    }
     const hpVal = document.getElementById('hud-hp-val');
     if (hpVal) hpVal.textContent = Math.ceil(s.hp) + '/' + maxHp;
     // Fuel
@@ -288,10 +306,14 @@ export function updateHtmlHUD(): void {
         let html = '';
         for (let i = 0; i < GS.quickBar.length; i++) {
             const slot = GS.quickBar[i];
-            const itemDef = DATA.ITEMS.find(it => it.id === slot.itemId);
-            if (itemDef && slot.qty > 0) {
-                html += '<div class="hud-quick-slot" title="' + itemDef.desc + ' [' + (i + 1) + ']">' +
-                    itemDef.icon + '<span class="slot-qty">' + slot.qty + '</span></div>';
+            if (slot.itemId) {
+                const itemDef = DATA.ITEMS.find(it => it.id === slot.itemId);
+                const icon = itemDef ? itemDef.icon : '?';
+                const desc = itemDef ? itemDef.desc : '';
+                const depleted = slot.qty <= 0;
+                const dimClass = depleted ? ' depleted' : '';
+                html += '<div class="hud-quick-slot' + dimClass + '" title="' + desc + ' [' + (i + 1) + ']">' +
+                    icon + '<span class="slot-qty">' + slot.qty + '</span></div>';
             } else {
                 html += '<div class="hud-quick-slot empty">-</div>';
             }

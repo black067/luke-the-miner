@@ -88,7 +88,12 @@
 .hud-val { min-width: 36px; }
 .hud-bar-bg { width: 70px; height: 12px; border: 1px inset #fff; background: #fff; position: relative; }
 .hud-bar-fill { height: 100%; }
-.hud-bar-fill.hp-fill { background: #c00; }
+.hud-bar-fill.hp-fill {
+  background-color: transparent;
+  background-image: linear-gradient(90deg, #c00 var(--hp-seg-fill, 12px), transparent 0 2px);
+  background-repeat: repeat;
+  background-size: var(--hp-seg-size, 14px) 100%;
+}
 .hud-bar-fill.fuel-fill { background: #00c; }
 .hud-btns { display: flex; gap: 3px; }
 
@@ -101,6 +106,8 @@
 .hud-quick-slot { width: 42px; height: 28px; background: #fff; border: 2px inset #fff; display: flex; align-items: center; justify-content: center; position: relative; }
 .hud-quick-slot .slot-qty { position: absolute; bottom: 1px; right: 2px; }
 .hud-quick-slot.empty { opacity: 0.3; }
+.hud-quick-slot.depleted { opacity: 0.5; }
+.hud-quick-slot.depleted .slot-qty { color: #cc3333; }
 
 /* === OVERLAYS (game-specific) === */
 .pause-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.5); z-index: 300; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }

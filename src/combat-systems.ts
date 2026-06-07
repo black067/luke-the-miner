@@ -220,7 +220,7 @@ export function tryDropLoot(enemyX: number, enemyY: number, _enemyDef: EnemyDef)
     } else if (roll < 0.48) {
         dropItem = generateRandomModule();
     } else if (roll < 0.5) {
-        dropItem = { id: 'cash_bundle', name: '钞票捆', icon: '💵', type: 'cash', quality: 'common', qty: 1, priceBtc: 0, desc: '', cashValue: randInt(50, 200) } as WarehouseItem;
+        dropItem = { id: 'cash_bundle', name: '钞票捆', icon: '$', type: 'cash', quality: 'common', qty: 1, priceBtc: 0, desc: '', cashValue: randInt(50, 200) } as WarehouseItem;
     }
     if (dropItem) {
         CombatCargo.push(dropItem);

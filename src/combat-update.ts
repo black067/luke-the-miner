@@ -316,7 +316,7 @@ export function updateWave(dt: number): void {
         C.wave.index++;
         startWave();
         SFX.play('waveUp');
-        combatToast(`⚡ 波次 ${C.wave.index + 1}`, 2.0);
+        combatToast(`WAVE ${C.wave.index + 1}`, 2.0);
         return;
     }
     if (!C.wave.allSpawned) {

@@ -235,7 +235,7 @@ export function refreshUgFloat(): void {
         }
         if (node.cost.cash) {
             const ok = GS.cash >= node.cost.cash;
-            costHtml += `<div class="uf-cost"><span class="${ok ? 'ok' : 'short'}">💵 ${node.cost.cash.toLocaleString()} (${ok ? '✓' : '✗'} ${GS.cash.toLocaleString()})</span></div>`;
+            costHtml += `<div class="uf-cost"><span class="${ok ? 'ok' : 'short'}">$ ${node.cost.cash.toLocaleString()} (${ok ? '✓' : '✗'} ${GS.cash.toLocaleString()})</span></div>`;
         }
     }
     let effectHtml = '';

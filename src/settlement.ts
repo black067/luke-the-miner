@@ -246,7 +246,7 @@ export function showSettlement(result: string, stats: CombatStats, areaId: strin
     }
 
     // ── Balance ──
-    balanceEl.textContent = `余额：₿${GS.bitcoin.toLocaleString()} · 💵${GS.cash.toLocaleString()}`;
+    balanceEl.textContent = `余额：₿${GS.bitcoin.toLocaleString()} · $${GS.cash.toLocaleString()}`;
 
     // ── After first combat, unlock radio ──
     if (GS.firstCombat) {

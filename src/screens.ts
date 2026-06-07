@@ -242,11 +242,11 @@ export function updateTaskbar(): void {
     const elBtc = document.getElementById('tb-btc');
     const elCash = document.getElementById('tb-cash');
     if (elDebt)
-        elDebt.textContent = '债务: ¥' + GS.debt.toLocaleString();
+        elDebt.textContent = '债务: $' + GS.debt.toLocaleString();
     if (elBtc)
         elBtc.textContent = '₿ ' + GS.bitcoin.toLocaleString();
     if (elCash)
-        elCash.textContent = '💵 ' + GS.cash.toLocaleString();
+        elCash.textContent = '$ ' + GS.cash.toLocaleString();
     // Unlock radio icon after first combat
     if (!GS.firstCombat && !GS.unlocks.radioRepaired) {
         GS.unlocks.radioRepaired = true;
