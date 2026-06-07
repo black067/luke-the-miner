@@ -19,6 +19,11 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# 强制 GitHub Actions 使用 Node.js 24 运行 JavaScript 操作
+# 避免 Node.js 20 弃用警告（2026-09-16 后移除）
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   # Build job
   build:
