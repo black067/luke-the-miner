@@ -225,31 +225,62 @@ export function getFuelDropChance(): number {
 // CARGO DROP
 // ============================================================
 
+/** Maximum cargo slots (stacked items share one slot). */
+function cargoUsedSlots(): number { return CombatCargo.length; }
+
 export function tryDropLoot(enemyX: number, enemyY: number, _enemyDef: EnemyDef): void {
     const maxCargo = getCargoSize();
-    if (CombatCargo.length >= maxCargo) return;
     const roll = Math.random();
     let dropItem: WarehouseItem | null = null;
-    if (roll < 0.3) {
+
+    // ── Drop table (85% total drop rate, 55% special resource) ──
+    if (roll < 0.55) {
+        // 55% — ore (special resource)
         const ores = DATA.ORES;
-        const oreIdx = roll < 0.05 ? 3 : (roll < 0.12 ? 2 : (roll < 0.2 ? 1 : 0));
+        let oreIdx: number;
+        // Weighted: diamond 3%, gold 7%, copper 15%, iron 75% (of ore rolls)
+        const subRoll = roll / 0.55;
+        if (subRoll < 0.03) oreIdx = 3;        // diamond
+        else if (subRoll < 0.10) oreIdx = 2;    // gold
+        else if (subRoll < 0.25) oreIdx = 1;    // copper
+        else oreIdx = 0;                         // iron
         const ore = ores[oreIdx];
         dropItem = { id: ore.id, name: ore.name, icon: ore.icon, type: 'ore', quality: 'common', qty: 1, priceBtc: ore.price, desc: '' } as WarehouseItem;
         C.stats.oreValue += ore.price;
         C.stats.resourceCollected += 1;
-    } else if (roll < 0.45) {
+    } else if (roll < 0.75) {
+        // 20% — material
         const mats = DATA.MATERIALS.filter(m => m.quality === 'common' || m.quality === 'rare');
-        const mat = mats[randInt(0, mats.length - 1)];
-        if (mat) dropItem = { id: mat.id, name: mat.name, icon: mat.icon, type: 'material', quality: mat.quality, qty: 1, priceBtc: mat.priceBtc, desc: '' } as WarehouseItem;
-    } else if (roll < 0.48) {
+        if (mats.length > 0) {
+            const mat = mats[randInt(0, mats.length - 1)];
+            if (mat) dropItem = { id: mat.id, name: mat.name, icon: mat.icon, type: 'material', quality: mat.quality, qty: 1, priceBtc: mat.priceBtc, desc: '' } as WarehouseItem;
+        }
+    } else if (roll < 0.80) {
+        // 5% — module
         dropItem = generateRandomModule();
-    } else if (roll < 0.5) {
+    } else if (roll < 0.85) {
+        // 5% — cash
         dropItem = { id: 'cash_bundle', name: '钞票捆', icon: '$', type: 'cash', quality: 'common', qty: 1, priceBtc: 0, desc: '', cashValue: randInt(50, 200) } as WarehouseItem;
     }
-    if (dropItem) {
-        CombatCargo.push(dropItem);
-        spawnDmgNumber(enemyX, enemyY - 10, dropItem.icon, '#ffcc00');
+    // 15% — nothing drops
+
+    if (!dropItem) return;
+
+    // ── Stack same-ID items (ores & materials share one slot) ──
+    if (dropItem.type === 'ore' || dropItem.type === 'material') {
+        const existing = CombatCargo.find(i => i.id === dropItem!.id);
+        if (existing) {
+            existing.qty = (existing.qty || 1) + 1;
+            spawnDmgNumber(enemyX, enemyY - 10, dropItem.icon, '#ffcc00');
+            return;
+        }
     }
+
+    // ── Check cargo capacity for new slots ──
+    if (cargoUsedSlots() >= maxCargo) return;
+
+    CombatCargo.push(dropItem);
+    spawnDmgNumber(enemyX, enemyY - 10, dropItem.icon, '#ffcc00');
 }
 
 export function generateRandomModule(): WarehouseItem | null {
