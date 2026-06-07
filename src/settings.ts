@@ -143,7 +143,7 @@ export function setShakeIntensity(val: string): void {
 }
 export function adjustUIScale(delta: number): void {
     const current = GS.settings.uiScale || 100;
-    const next = Math.max(50, Math.min(200, current + delta));
+    const next = Math.max(100, Math.min(300, current + delta));
     setUIScale(String(next));
 }
 export function applyUIScale(): void {
