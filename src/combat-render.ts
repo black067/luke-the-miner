@@ -50,6 +50,20 @@ export function drawShip(): void {
     // ---- vector thrusters ----
     drawShipThrusters();
 
+    // ---- rotating cannon barrel ----
+    {
+        combatCtx.save();
+        combatCtx.rotate(s.cannonAngle + Math.PI / 2);
+        const barrelLen = COMBAT.SHIP_H / 2 + 6;
+        combatCtx.strokeStyle = '#ffffff';
+        combatCtx.lineWidth = 3;
+        combatCtx.beginPath();
+        combatCtx.moveTo(0, 2);
+        combatCtx.lineTo(0, -barrelLen);
+        combatCtx.stroke();
+        combatCtx.restore();
+    }
+
     // ---- ship body (triangle pointing up) ----
     combatCtx.fillStyle = '#44cc88';
     combatCtx.beginPath();
@@ -75,23 +89,6 @@ export function drawShip(): void {
     combatCtx.beginPath();
     combatCtx.arc(0, -4, 4, 0, Math.PI * 2);
     combatCtx.fill();
-
-    // ---- rotating cannon barrel ----
-    combatCtx.save();
-    combatCtx.rotate(s.cannonAngle + Math.PI / 2);
-    const barrelLen = COMBAT.SHIP_H / 2 + 6;
-    combatCtx.strokeStyle = '#ffffff';
-    combatCtx.lineWidth = 3;
-    combatCtx.beginPath();
-    combatCtx.moveTo(0, 2);
-    combatCtx.lineTo(0, -barrelLen);
-    combatCtx.stroke();
-    // Barrel tip glow
-    combatCtx.fillStyle = '#ffaa44';
-    combatCtx.beginPath();
-    combatCtx.arc(0, -barrelLen, 2.5, 0, Math.PI * 2);
-    combatCtx.fill();
-    combatCtx.restore();
 
     combatCtx.restore();
 }
