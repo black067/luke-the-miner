@@ -59,6 +59,7 @@
 }
 .window-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: flex; align-items: center; justify-content: center; }
 .window-overlay .window { width: calc(100% - 16px); height: calc(100% - 36px); max-width: none; max-height: none; display: flex; flex-direction: column; }
+.window-overlay .window.confirm-dialog { width: auto; height: auto; }
 .window-overlay .window-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
 /* Paneled windows (warehouse/shop): each side scrolls independently */
 .window-body:has(.inv-layout) { overflow-y: hidden; }
@@ -188,6 +189,7 @@
 
 /* Pagination */
 .inv-pagination { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 4px; flex-shrink: 0; }
+.inv-pagination .page-btn { width: 48px; min-width: 0; }
 
 /* === DETAIL PANEL (layout only — visual by 98.css: .field-row, .sunken-panel, <p>) === */
 .detail-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
