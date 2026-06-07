@@ -35,6 +35,7 @@ let _loading = false;
 let _currentTrack: string | null = null;
 let _pendingTrack: string | null = null;
 let _globalsInjected = false;
+let _samplesReady: Promise<void> | null = null;
 
 // The repl instance created by webaudioRepl() — owns scheduler + audio routing
 let _repl: any = null;
@@ -84,14 +85,43 @@ function _transpileMini(code: string): { output: string; meta: Record<string, un
     return { output: out.join('\n'), meta: {} };
 }
 
+/** Suppress known superdough deprecation warnings by replacing the
+ *  superdough logger. The messages go through j3 → wt3 → console.log,
+ *  not console.warn, so a console.warn filter alone doesn't catch them. */
+let _deprecationSuppressed = false;
+function _suppressSuperdoughDeprecationWarnings(): void {
+    if (_deprecationSuppressed) return;
+    _deprecationSuppressed = true;
+    const s = _getStrudel();
+    if (!s || typeof s.webaudio.setLogger !== 'function') return;
+    // setLogger replaces the internal wt3 logger used by j3
+    s.webaudio.setLogger((msg: string) => {
+        if (typeof msg === 'string' && msg.includes('Deprecation warning')) return;
+        console.log(msg);
+    });
+}
+
+/** Load bank name aliases so .bank("tr808") resolves to RolandTR808_bd etc. */
+async function _loadBankAliases(s: any): Promise<void> {
+    if (typeof s.webaudio.aliasBank !== 'function') return;
+    try {
+        const resp = await fetch('https://strudel.b-cdn.net/tidal-drum-machines-alias.json');
+        if (!resp.ok) return;
+        const aliases: Record<string, string> = await resp.json();
+        for (const [fullName, shortName] of Object.entries(aliases)) {
+            try { await s.webaudio.aliasBank(shortName, fullName); } catch (_e) { /* skip */ }
+        }
+    } catch (_e) { /* network error — aliases are optional */ }
+}
+
 /** Put strudel core functions (s, note, sound, etc.) on globalThis
  *  so that safeEval can find them when evaluating pattern code.
- *  Also calls registerSynthSounds() so square/sine/triangle/sawtooth
- *  oscillator voices are available in superdough. */
-function _injectStrudelGlobals(): void {
-    if (_globalsInjected) return;
+ *  Also calls registerSynthSounds() and preloads sample packs.
+ *  Returns a Promise that resolves when samples are ready. */
+function _injectStrudelGlobals(): Promise<void> {
+    if (_globalsInjected) return _samplesReady || Promise.resolve();
     const s = _getStrudel();
-    if (!s) return;
+    if (!s) return Promise.resolve();
 
     const core = s.core;
     // Functions referenced by pattern code: s, note, sound, bank, stack, silence, rand
@@ -108,6 +138,30 @@ function _injectStrudelGlobals(): void {
         try { s.webaudio.registerSynthSounds(); } catch (_e) { /* ignore */ }
     }
 
+    // Suppress superdough internal deprecation warnings (known issue:
+    // registerSynthSounds triggers "node.onended = callback" path).
+    _suppressSuperdoughDeprecationWarnings();
+
+    // Preload sample packs from strudel CDN — these are lightweight JSON manifests
+    // that map sample names to WAV URLs. Actual WAV files are lazy-loaded on first
+    // trigger by the scheduler.
+    const promises: Promise<void>[] = [];
+    if (typeof s.webaudio.samples === 'function') {
+        // TR-808 drum machine samples (used by .bank("tr808"))
+        promises.push(
+            s.webaudio.samples('https://strudel.b-cdn.net/tidal-drum-machines.json')
+                .catch(() => console.warn('BGM: failed to load drum machine samples')),
+        );
+        // VCSL sample library (shaker_small, etc.)
+        promises.push(
+            s.webaudio.samples('https://strudel.b-cdn.net/vcsl.json')
+                .catch(() => console.warn('BGM: failed to load VCSL samples')),
+        );
+        // Load bank name aliases so that .bank("tr808") resolves to RolandTR808_bd etc.
+        promises.push(_loadBankAliases(s));
+    }
+    _samplesReady = Promise.all(promises).then(() => {});
+
     // Enable mini-notation parsing in s(), note(), etc. string arguments.
     // Without this, s("[bd ~]") is treated as a literal sound name.
     if (typeof s.mini.miniAllStrings === 'function') {
@@ -120,6 +174,7 @@ function _injectStrudelGlobals(): void {
     }
 
     _globalsInjected = true;
+    return _samplesReady;
 }
 
 /** Ensure strudel packages are loaded & create the repl instance. */
@@ -134,7 +189,8 @@ async function _ensureStrudel(): Promise<boolean> {
 
     // Make s, note, etc. available globally BEFORE creating the repl
     // (repl.evaluate calls injectPatternMethods which adds setcps etc.)
-    _injectStrudelGlobals();
+    // Also preloads sample packs from CDN — await before playing patterns.
+    await _injectStrudelGlobals();
 
     // Initialize superdough AudioWorklets (idempotent)
     if (typeof s.webaudio.initAudio === 'function') {

@@ -5,7 +5,7 @@ setcps(0.7)
 
 // 稀疏鼓点 — 太空脉冲
 $: s("[bd ~ ~ ~, ~ ~ hh ~, ~ ~ sd [hh hh]]")
-  .bank("tr808")
+  .bank("RolandTR808")
   .gain(.4)
   .room(.5)
 
