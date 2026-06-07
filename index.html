@@ -6,11 +6,16 @@
 <title>星环矿工 MVP</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>⛏️</text></svg>">
 <style>html,body,canvas{ime-mode:disabled;}</style>
-<!-- Fonts -->
+<!-- Fonts: H1-Latin (Press Start 2P) + L1-Latin (VT323) -->
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<!-- Fonts: Emoji (Noto Color Emoji) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
 <!-- 98.css -->
 <link rel="stylesheet" href="https://unpkg.com/98.css">
 <!-- Game styles -->
+<link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="css/components.css">
 <!-- Clippy.js -->
@@ -25,8 +30,8 @@
   <!-- ========== MAIN MENU ========== -->
   <div class="screen active" id="main-menu" style="background:#c0c0c0;">
     <canvas class="menu-stars"></canvas>
-    <h1 style="font-family: 'Press Start 2P', monospace; font-size: 500%; color: #fff;">星环矿工</h1>
-    <p style="font-family: 'Press Start 2P', monospace; color: #fff;">Miner of the Earth Ring</p>
+    <h1 class="font-h1-latin" style="color: #fff; font-size: 500%">星环矿工</h1>
+    <p class="font-h1-latin" style="color: #fff;font-size: 200%">LUKE THE MINER</p>
     <div style="flex: 0.3;"></div>
     <button data-action="new-game">新游戏</button>
     <button data-action="continue">继续</button>
@@ -212,7 +217,7 @@
 
   <!-- ========== SETTINGS ========== -->
   <div class="screen" id="settings-screen" style="background:#c0c0c009;">
-    <div class="window" style="width: 50%; height: 50%;">
+    <div class="window" style="width: 100%; height: 100%;">
       <div class="title-bar">
         <div class="title-bar-text">⚙️ 设置</div>
         <div class="title-bar-controls">
@@ -220,71 +225,71 @@
         </div>
       </div>
       <div class="window-body">
-      <menu role="tablist">
-        <li role="tab" aria-selected="true" data-tab="game" data-action="switch-settings-tab" data-action-arg="game"><a href="#settings">游戏</a></li>
-        <li role="tab" data-tab="control" data-action="switch-settings-tab" data-action-arg="control"><a href="#settings">操作</a></li>
-        <li role="tab" data-tab="debug" data-action="switch-settings-tab" data-action-arg="debug"><a href="#settings">调试</a></li>
-      </menu>
-      <div role="tabpanel" class="window">
-        <div role="tabpanel" id="settings-tab-game">
-          <div style="max-width: 380px;">
-          <div class="field-row">
-            <label>主音量</label>
-            <input type="range" min="0" max="100" value="80" data-action="set-volume" data-action-arg="master">
-            <span id="master-vol-val" class="field-row-val">80%</span>
+        <menu role="tablist">
+          <li role="tab" aria-selected="true" data-tab="game" data-action="switch-settings-tab" data-action-arg="game"><a href="#settings">游戏</a></li>
+          <li role="tab" data-tab="control" data-action="switch-settings-tab" data-action-arg="control"><a href="#settings">操作</a></li>
+          <li role="tab" data-tab="debug" data-action="switch-settings-tab" data-action-arg="debug"><a href="#settings">调试</a></li>
+        </menu>
+        <div role="tabpanel" class="window">
+          <div role="tabpanel" id="settings-tab-game">
+            <div style="max-width: 380px;">
+            <div class="field-row">
+              <label>主音量</label>
+              <input type="range" min="0" max="100" value="80" data-action="set-volume" data-action-arg="master">
+              <span id="master-vol-val" class="field-row-val">80%</span>
+            </div>
+            <div class="field-row">
+              <label>音乐音量</label>
+              <input type="range" min="0" max="100" value="80" data-action="set-volume" data-action-arg="bgm">
+              <span id="bgm-vol-val" class="field-row-val">80%</span>
+            </div>
+            <div class="field-row">
+              <label>音效音量</label>
+              <input type="range" min="0" max="100" value="90" data-action="set-volume" data-action-arg="sfx">
+              <span id="sfx-vol-val" class="field-row-val">90%</span>
+            </div>
+            <div class="field-row">
+              <label>震动强度</label>
+              <input type="range" min="0" max="200" value="100" data-action="set-shake-intensity">
+              <span id="shake-intensity-val" class="field-row-val">100%</span>
+            </div>
+            <div class="field-row">
+              <label style="margin-right: 6px;">CRT 滤镜</label>
+              <input type="checkbox" id="crt-filter-cb" data-action="toggle-crt-filter" checked>
+              <label for="crt-filter-cb"></label>
+            </div>
+            <div class="field-row">
+              <label>界面缩放</label>
+              <span>
+                <button class="button-min" data-action="adjust-ui-scale" data-action-arg="-10">−</button>
+                <span id="ui-scale-val" class="field-row-val">100%</span>
+                <button class="button-min" data-action="adjust-ui-scale" data-action-arg="10">+</button>
+              </span>
+            </div>
+            <div class="field-row"><label>语言</label><select><option>简体中文</option><option>English</option></select></div>
+            <div class="field-row"><label>桌面助手</label><select id="clippy-agent-select" data-action="switch-clippy"><option value="Clippy">📎 Clippy</option><option value="Merlin">🧙 Merlin</option><option value="Bonzi">🟣 Bonzi</option><option value="F1">🤖 F1</option><option value="Genie">🧞 Genie</option><option value="Genuis">🎓 Genuis</option><option value="Links">🐱 Links</option><option value="Peedy">🦜 Peedy</option><option value="Rocky">🐶 Rocky</option><option value="Rover">🐕 Rover</option></select></div>
+            </div>
           </div>
-          <div class="field-row">
-            <label>音乐音量</label>
-            <input type="range" min="0" max="100" value="80" data-action="set-volume" data-action-arg="bgm">
-            <span id="bgm-vol-val" class="field-row-val">80%</span>
+          <div role="tabpanel" id="settings-tab-control" style="display:none;">
+            <div class="field-row"><label>发射按键</label><span>鼠标左键</span></div>
+            <div class="field-row"><label>暂停按键</label><span>ESC</span></div>
+            <div class="field-row"><label>背包按键</label><span>Tab</span></div>
           </div>
-          <div class="field-row">
-            <label>音效音量</label>
-            <input type="range" min="0" max="100" value="90" data-action="set-volume" data-action-arg="sfx">
-            <span id="sfx-vol-val" class="field-row-val">90%</span>
-          </div>
-          <div class="field-row">
-            <label>震动强度</label>
-            <input type="range" min="0" max="200" value="100" data-action="set-shake-intensity">
-            <span id="shake-intensity-val" class="field-row-val">100%</span>
-          </div>
-          <div class="field-row">
-            <label style="margin-right: 6px;">CRT 滤镜</label>
-            <input type="checkbox" id="crt-filter-cb" data-action="toggle-crt-filter" checked>
-            <label for="crt-filter-cb"></label>
-          </div>
-          <div class="field-row">
-            <label>界面缩放</label>
-            <span>
-              <button class="button-min" data-action="adjust-ui-scale" data-action-arg="-10">−</button>
-              <span id="ui-scale-val" class="field-row-val">100%</span>
-              <button class="button-min" data-action="adjust-ui-scale" data-action-arg="10">+</button>
-            </span>
-          </div>
-          <div class="field-row"><label>语言</label><select><option>简体中文</option><option>English</option></select></div>
-          <div class="field-row"><label>桌面助手</label><select id="clippy-agent-select" data-action="switch-clippy"><option value="Clippy">📎 Clippy</option><option value="Merlin">🧙 Merlin</option><option value="Bonzi">🟣 Bonzi</option><option value="F1">🤖 F1</option><option value="Genie">🧞 Genie</option><option value="Genuis">🎓 Genuis</option><option value="Links">🐱 Links</option><option value="Peedy">🦜 Peedy</option><option value="Rocky">🐶 Rocky</option><option value="Rover">🐕 Rover</option></select></div>
+          <div role="tabpanel" id="settings-tab-debug" style="display:none;">
+            <div class="field-row">
+              <label>解锁全部功能</label>
+              <button data-action="unlock-all">解锁</button>
+            </div>
+            <div class="field-row">
+              <label>获得随机道具</label>
+              <button data-action="give-random-item">获取</button>
+            </div>
+            <div class="field-row">
+              <label>清空缓存并回到标题</label>
+              <button data-action="clear-reset">重置</button>
+            </div>
           </div>
         </div>
-        <div role="tabpanel" id="settings-tab-control" style="display:none;">
-          <div class="field-row"><label>发射按键</label><span>鼠标左键</span></div>
-          <div class="field-row"><label>暂停按键</label><span>ESC</span></div>
-          <div class="field-row"><label>背包按键</label><span>Tab</span></div>
-        </div>
-        <div role="tabpanel" id="settings-tab-debug" style="display:none;">
-          <div class="field-row">
-            <label>解锁全部功能</label>
-            <button data-action="unlock-all">解锁</button>
-          </div>
-          <div class="field-row">
-            <label>获得随机道具</label>
-            <button data-action="give-random-item">获取</button>
-          </div>
-          <div class="field-row">
-            <label>清空缓存并回到标题</label>
-            <button data-action="clear-reset">重置</button>
-          </div>
-        </div>
-      </div>
       </div>
     </div>
   </div>

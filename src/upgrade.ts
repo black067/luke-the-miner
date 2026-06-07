@@ -152,13 +152,13 @@ export function drawUpgradeTree(ctx: CanvasRenderingContext2D, w: number, h: num
             }
             // Icon
             const icon = DATA.UPGRADES[key].icon || '⚡';
-            ctx.font = '16px sans-serif';
+            ctx.font = '16px "Noto Color Emoji", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillStyle = done ? '#0f0' : (unlocked ? '#8a8' : '#444');
             ctx.fillText(icon, pos.x, pos.y - 4);
             // Label
-            ctx.font = '7px "Press Start 2P", monospace';
+            ctx.font = '7px VT323, "Fusion Pixel CJK", "Noto Color Emoji", monospace';
             ctx.fillStyle = done ? '#0f0' : (unlocked ? '#6a6' : '#333');
             ctx.fillText(node.label, pos.x, pos.y + r + 14);
         }
@@ -261,7 +261,7 @@ export function refreshUgFloat(): void {
         ? '<div class="uf-done">✅ 已升级</div>'
         : (unlocked
             ? `<button class="uf-btn${canAfford ? '' : ' disabled'}" onclick="ugDoUpgrade()">🔧 升级</button>`
-            : '<div style="color:#555;font-size:11px;">🔒</div>')}
+            : '<div style="color:#555;">🔒</div>')}
   `;
     float.classList.add('visible');
 }

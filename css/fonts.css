@@ -1,0 +1,87 @@
+/* ============================================================
+   FONTS.CSS — Font configuration & override
+   ============================================================
+   Usage:
+     H1-Latin : 'Press Start 2P' — main menu titles, combat canvas
+     L1-Latin : 'VT323'         — general UI (replaces 98.css ms_sans_serif)
+     L1-CJK   : fusion-pixel    — CJK supplement for L1-Latin (base 20px)
+     Emoji    : Noto Color Emoji
+   ============================================================ */
+
+/* === H1-Latin: Press Start 2P === */
+/* Loaded via Google Fonts in index.html */
+
+/* === L1-Latin: VT323 === */
+/* Loaded via Google Fonts in index.html */
+
+/* === L1-CJK: fusion-pixel (proportional 10px, CJK supplement) === */
+@font-face {
+    font-family: 'Fusion Pixel CJK';
+    src: url('../assets/fonts/fusion-pixel-10px-proportional-zh_hans.ttf') format('truetype');
+    font-display: swap;
+    font-style: normal;
+    font-weight: 400;
+    /* Designed at 10px; CSS font-size should use 20px as base (integer multiples only) */
+}
+
+/* === Emoji: Noto Color Emoji === */
+/* Loaded via Google Fonts in index.html */
+.noto-color-emoji-regular {
+    font-family: "Noto Color Emoji", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* === Font stack CSS variables === */
+:root {
+    --font-h1-latin: 'Press Start 2P', 'Arial', monospace;
+    --font-l1: 'Fusion Pixel CJK', 'Noto Color Emoji', monospace;
+}
+
+/* === Base font-size + override 98.css default fonts === */
+html {
+    font-size: 10px;  /* integer base for pixel fonts (rem reference) */
+}
+body {
+    font-size: inherit;  /* override 98.css body{font-size:12px} */
+    font-family: var(--font-l1);
+}
+
+/* Override all 98.css elements — strip their explicit font-size, use font-l1 */
+.title-bar,
+.window,
+button,
+input,
+label,
+legend,
+li[role=tab],
+option,
+select,
+table,
+textarea,
+ul.tree-view,
+h1, h2, h3, h4 {
+    font-family: var(--font-l1);
+    font-size: inherit;  /* inherit 20px base instead of 98.css 11px/5rem */
+    -webkit-font-smoothing: none;  /* keep 98.css crisp pixel rendering */
+}
+
+/* Also override 98.css body fallback (Arial) on specific sub-elements */
+.title-bar-text,
+.title-bar-controls,
+.status-bar,
+.window-body,
+.tree-view,
+.sunken-panel,
+.field-row,
+.field-row > * {
+    font-family: var(--font-l1);
+}
+
+/* === Utility classes for explicit font assignment === */
+.font-h1-latin {
+    font-family: var(--font-h1-latin);
+}
+.font-l1 {
+    font-family: var(--font-l1);
+}
