@@ -257,11 +257,8 @@ export function showSettlement(result: string, stats: CombatStats, areaId: strin
     // ── Balance ──
     balanceEl.textContent = `余额：₿${GS.bitcoin.toLocaleString()} · $${GS.cash.toLocaleString()}`;
 
-    // ── After first combat, unlock radio ──
-    if (GS.firstCombat) {
-        dispatch({ type: 'SET_FIRST_COMBAT', value: false });
-        dispatch({ type: 'UNLOCK_RADIO' });
-    }
+    // ── Increment battle count ──
+    dispatch({ type: 'ADD_BATTLE' });
     updateTaskbar();
 }
 

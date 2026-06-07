@@ -259,15 +259,15 @@ export function updateTaskbar(): void {
         elBtc.textContent = '₿ ' + GS.bitcoin.toLocaleString();
     if (elCash)
         elCash.textContent = '$ ' + GS.cash.toLocaleString();
-    // Unlock radio icon after first combat
-    if (!GS.firstCombat && !GS.unlocks.radioRepaired) {
-        GS.unlocks.radioRepaired = true;
+    // Unlock radio icon after N battles
+    if (GS.battlesCompleted >= 3 && !GS.unlocks.radioRepaired) {
+        dispatch({ type: 'UNLOCK_RADIO' });
         const radioIcon = document.getElementById('radio-icon');
         if (radioIcon)
-            radioIcon.classList.remove('locked');
+            radioIcon.classList.remove('hidden');
     }
-    // Unlock underground after achieving certain progress
-    if (GS.debt < 100000 && !GS.unlocks.undergroundVisible) {
+    // Unlock underground after cash reaches threshold
+    if (GS.cash >= 5000 && !GS.unlocks.undergroundVisible) {
         dispatch({ type: 'UNLOCK_UNDERGROUND' });
         const ugIcon = document.getElementById('underground-icon');
         if (ugIcon)

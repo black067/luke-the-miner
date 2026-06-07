@@ -18,7 +18,7 @@ export let GS: GameStateObj = {
     cash: 3200,
     selectedArea: 'mine',
     combatResult: null,
-    firstCombat: true,
+    battlesCompleted: 0,
     equipment: { weapon: null, ball: null, storage: null, accessories: [null, null, null] },
     quickBar: [
         { itemId: 'item_repair', qty: 3 },
@@ -56,7 +56,7 @@ const DEFAULT_GS: GameStateObj = {
     cash: 3200,
     selectedArea: 'mine',
     combatResult: null,
-    firstCombat: true,
+    battlesCompleted: 0,
     equipment: { weapon: null, ball: null, storage: null, accessories: [null, null, null] },
     quickBar: [
         { itemId: 'item_repair', qty: 3 },
@@ -99,8 +99,8 @@ export function gsReducer(state: GameStateObj, action: GSAction): GameStateObj {
             return { ...state, cash: action.value };
         case 'SET_COMBAT_RESULT':
             return { ...state, combatResult: action.result };
-        case 'SET_FIRST_COMBAT':
-            return { ...state, firstCombat: action.value };
+        case 'ADD_BATTLE':
+            return { ...state, battlesCompleted: state.battlesCompleted + 1 };
         case 'SET_SCREEN':
             return { ...state, screen: action.screen };
         case 'SET_SETTINGS_RETURN':
@@ -177,7 +177,7 @@ export function saveGame(): void {
             bitcoin: GS.bitcoin,
             cash: GS.cash,
             selectedArea: GS.selectedArea,
-            firstCombat: GS.firstCombat,
+            battlesCompleted: GS.battlesCompleted,
             equipment: GS.equipment,
             quickBar: GS.quickBar,
             warehouse: GS.warehouse,
@@ -200,7 +200,7 @@ export function loadGame(): boolean {
         GS.bitcoin = data.bitcoin ?? 12450;
         GS.cash = data.cash ?? 3200;
         GS.selectedArea = data.selectedArea || 'mine';
-        GS.firstCombat = data.firstCombat ?? true;
+        GS.battlesCompleted = data.battlesCompleted ?? 0;
         GS.equipment = data.equipment || { weapon: null, ball: null, storage: null, accessories: [null, null, null] };
         GS.quickBar = data.quickBar || [
             { itemId: 'item_repair', qty: 3 },

@@ -113,7 +113,7 @@ export function startCombat(areaId: string): void {
     C._startTime = performance.now();
     _combatLastTime = performance.now();
     startWave();
-    if (GS.firstCombat && !C._tutorialShown) {
+    if (GS.battlesCompleted === 0 && !C._tutorialShown) {
         C._tutorialShown = true;
         setTimeout(() => {
             if (C.state === 'playing')

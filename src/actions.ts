@@ -8,7 +8,7 @@ export type GSAction =
   | { type: 'ADD_CASH'; amount: number }
   | { type: 'SET_CASH'; value: number }
   | { type: 'SET_COMBAT_RESULT'; result: string | null }
-  | { type: 'SET_FIRST_COMBAT'; value: boolean }
+  | { type: 'ADD_BATTLE' }
   | { type: 'SET_SCREEN'; screen: string }
   | { type: 'SET_SETTINGS_RETURN'; from: string }
   | { type: 'SET_SELECTED_AREA'; area: string }

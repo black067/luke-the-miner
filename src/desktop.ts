@@ -19,9 +19,9 @@ export function showDesktop(): void {
     const radioIcon = document.getElementById('radio-icon');
     if (radioIcon) {
         if (GS.unlocks.radioRepaired)
-            radioIcon.classList.remove('locked');
+            radioIcon.classList.remove('hidden');
         else
-            radioIcon.classList.add('locked');
+            radioIcon.classList.add('hidden');
     }
     // Update underground icon state
     const ugIcon = document.getElementById('underground-icon');
@@ -131,9 +131,9 @@ export function updateDesktopIcons(): void {
     const radioIcon = document.getElementById('radio-icon');
     if (radioIcon) {
         if (GS.unlocks.radioRepaired)
-            radioIcon.classList.remove('locked');
+            radioIcon.classList.remove('hidden');
         else
-            radioIcon.classList.add('locked');
+            radioIcon.classList.add('hidden');
     }
     const ugIcon = document.getElementById('underground-icon');
     if (ugIcon) {
