@@ -1,5 +1,5 @@
 /* ============================================================
-   SHOP.TS — 0mazon (BTC shop) & Black Market (cash shop + orders)
+   SHOP.TS — Okayzon (BTC shop) & Black Market (cash shop + orders)
    ============================================================ */
 
 import { DATA } from './data.js';
@@ -11,7 +11,7 @@ import { renderEquipProps } from './inventory.js';
 import type { ShopRef, BaseModule } from './types.js';
 
 // ============================================================
-// 0MAZON SHOP
+// Okayzon SHOP
 // ============================================================
 export const SHOP_COLS = 6;
 export const SHOP_PAGE_SIZE = SHOP_COLS * 6;
@@ -112,7 +112,7 @@ export function refreshShopUI(): void {
     if (pag)
         pag.innerHTML = renderShopPagination();
     const filter = document.querySelector('#window-overlay .inv-filter-bar');
-    if (filter && currentWindowType === 'omazon')
+    if (filter && currentWindowType === 'Okayzon')
         filter.outerHTML = renderShopFilterBar();
     const btcEl = document.getElementById('shop-btc');
     if (btcEl)
@@ -147,7 +147,7 @@ export function refreshShopUI(): void {
       <button class="detail-btn primary" onclick="buyShopItem()">💰 购买  ₿${price.toLocaleString()}</button>
     </div>`;
 }
-export function getOmazonBody(): string {
+export function getOkayzonBody(): string {
     shopFilter = 'modules';
     shopPage = 0;
     shopSelected = null;

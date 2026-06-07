@@ -153,10 +153,10 @@ export function openWindow(type: string): void {
             });
             return;
         }
-        case 'omazon': {
-            title = '🛒 0mazon';
+        case 'Okayzon': {
+            title = '🛒 Okayzon';
             import('./shop.js').then(s => {
-                body = s.getOmazonBody();
+                body = s.getOkayzonBody();
                 winClass = ' window-inv';
                 finishWindow(overlay, title, body, winClass, type);
             });

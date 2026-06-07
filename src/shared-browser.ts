@@ -1,6 +1,6 @@
 /* ============================================================
    SHARED-BROWSER.TS — Shared item browsing list utilities
-   Eliminates DRY violations between warehouse, 0mazon, and
+   Eliminates DRY violations between warehouse, Okayzon, and
    black market shop (filter bar + grid + pagination pattern).
    ============================================================ */
 

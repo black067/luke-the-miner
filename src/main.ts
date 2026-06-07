@@ -27,7 +27,7 @@ import {
   whRemoveItemFromQuickBar, whSellItem, whClearQuickSlot
 } from './inventory.js';
 import {
-  getOmazonBody, getUndergroundBody, refreshShopUI, refreshUgUI,
+  getOkayzonBody, getUndergroundBody, refreshShopUI, refreshUgUI,
   shopSetFilter, shopGoPage, shopSelectItem, buyShopItem,
   ugSetFilter, ugGoPage, ugSelectShopItem, ugBuyItem,
   ugSelectOrder, ugFulfillOrder, ugSwitchTab
@@ -74,8 +74,8 @@ Object.assign(window, {
   whSelectItem, whSelectQuickBar, whSelectEquipSlot, whBatchSellCommon,
   whEquipItem, whUnequipSlot, whSetQuickBar, whRemoveFromQuickBar,
   whRemoveItemFromQuickBar, whSellItem, whClearQuickSlot,
-  // shop / omazon
-  getOmazonBody, getUndergroundBody, refreshShopUI, refreshUgUI,
+  // shop / Okayzon
+  getOkayzonBody, getUndergroundBody, refreshShopUI, refreshUgUI,
   shopSetFilter, shopGoPage, shopSelectItem, buyShopItem,
   // underground shop
   ugSetFilter, ugGoPage, ugSelectShopItem, ugBuyItem,
@@ -102,7 +102,7 @@ Object.assign(window, {
 function handleBrowserFilter(filter: string): void {
     switch (currentWindowType) {
         case 'warehouse': whSetFilter(filter); break;
-        case 'omazon': shopSetFilter(filter); break;
+        case 'Okayzon': shopSetFilter(filter); break;
         case 'underground': ugSetFilter(filter); break;
     }
 }
@@ -219,7 +219,7 @@ const App = {
       if (e.key === 'i' || e.key === 'I') { openWindow('warehouse'); e.preventDefault(); }
       if (e.key === 'u' || e.key === 'U') { openWindow('upgrade'); e.preventDefault(); }
       if (e.key === 'm' || e.key === 'M') { openWindow('mail'); e.preventDefault(); }
-      if (e.key === 'o' || e.key === 'O') { openWindow('omazon'); e.preventDefault(); }
+      if (e.key === 'o' || e.key === 'O') { openWindow('Okayzon'); e.preventDefault(); }
     });
   },
   _initMenuStars,
