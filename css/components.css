@@ -31,8 +31,7 @@
 .work-area-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
 .work-area-item { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px; cursor: pointer; }
 .work-area-item:not(.selected):not(.locked):hover { background: #e0e0e0; }
-.work-area-item.selected { background: #000080a8; color: #fff; }
-.work-area-item.selected::before { content: '▶ '; }
+.work-area-item.selected { background: #000080; color: #fff; }
 .work-area-item.locked { opacity: 0.4; pointer-events: none; }
 
 /* Taskbar */
