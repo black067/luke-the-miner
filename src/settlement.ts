@@ -124,25 +124,25 @@ export function showSettlement(result: string, stats: CombatStats, areaId: strin
     // ── Title banner & subtitle ──
     const bannerConfig: Record<string, { text: string; bg: string; color: string; sub: string }> = {
         victory: {
-            text: '清场撤离 · 圆满下班',
+            text: '清场',
             bg: '#1a4a1a', color: '#5f5',
-            sub: '所有波次敌人被清空。',
+            sub: '超额完成作业！你真的该被授予劳动模范称号——可惜我们没这个说法',
         },
         defeat: {
-            text: '机体坠毁 · 全军覆没',
+            text: '坠毁',
             bg: '#4a1a1a', color: '#f55',
-            sub: '机体严重损毁，货舱物品已丢失。',
+            sub: '机体严重损毁。下次小心点，别让工头失望哦！',
         },
         breakdown: {
-            text: '中途抛锚 · 呼叫拖车',
+            text: '抛锚',
             bg: '#4a3a1a', color: '#fa0',
-            sub: '机体故障，被迫中断作业。',
+            sub: '燃油不够了。又磨洋工了吧？',
         },
     };
     const cfg = bannerConfig[result] || {
-        text: '提前撤离 · 旷工早退',
+        text: '早退',
         bg: '#3a3a1a', color: '#ff0',
-        sub: `特产未收集齐全，提前撤离。`,
+        sub: `没把活干完就走？你不干有的是人干！`,
     };
     banner.textContent = cfg.text;
     banner.setAttribute('style', `text-align:center;font-size:14px;font-weight:bold;padding:6px 0;background:${cfg.bg};color:${cfg.color};margin-bottom:6px;`);
