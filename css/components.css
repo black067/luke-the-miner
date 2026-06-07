@@ -83,9 +83,13 @@
 
 .hud-row { display: flex; align-items: center; gap: 8px; }
 .hud-block { display: flex; align-items: center; gap: 4px; }
-.hud-block.hud-grow { flex: 1; }
+.hud-block.hud-grow { flex: 1; justify-content: center; }
 .hud-label { min-width: 30px; }
 .hud-val { min-width: 36px; }
+.hud-wave, .hud-wave-sub { white-space: nowrap; }
+.hud-wave { font-weight: bold; }
+.hud-wave-sub { font-size: 10px; color: #555; margin-left: 8px; }
+.hud-resource { font-weight: bold; white-space: nowrap; }
 .hud-bar-bg { width: 70px; height: 12px; border: 1px inset #fff; background: #fff; position: relative; }
 .hud-bar-fill { height: 100%; }
 .hud-bar-fill.hp-fill {

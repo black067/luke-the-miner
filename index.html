@@ -136,21 +136,11 @@
     <div id="combat-hud-top">
       <div class="hud-row">
         <div class="hud-block">
-          <span class="hud-label">HP</span>
-          <div class="hud-bar-bg"><div class="hud-bar-fill hp-fill" id="hud-hp-fill"></div></div>
-          <span class="hud-val" id="hud-hp-val">5/5</span>
+          <span class="hud-resource" id="hud-resource">铁矿石: 0/30</span>
         </div>
-        <div class="hud-block">
-          <span class="hud-label">FUEL</span>
-          <div class="hud-bar-bg"><div class="hud-bar-fill fuel-fill" id="hud-fuel-fill"></div></div>
-          <span class="hud-val" id="hud-fuel-val">100%</span>
-        </div>
-        <div class="hud-block hud-grow">
+        <div class="hud-block hud-grow" style="justify-content:center;">
           <span class="hud-wave" id="hud-wave">矿区边缘 1/7</span>
           <span class="hud-wave-sub" id="hud-wave-sub">ENEMIES: 0</span>
-        </div>
-        <div class="hud-block hud-grow">
-          <span class="hud-resource" id="hud-resource">资源: 0/30</span>
         </div>
         <div class="hud-btns">
           <button id="hud-btn-evac" data-action="try-evacuate">撤离</button>
@@ -166,10 +156,19 @@
     <div id="combat-hud-bottom">
       <div class="hud-row">
         <div class="hud-block">
+          <span class="hud-label">HP</span>
+          <div class="hud-bar-bg"><div class="hud-bar-fill hp-fill" id="hud-hp-fill"></div></div>
+          <span class="hud-val" id="hud-hp-val">5/5</span>
+        </div>
+        <div class="hud-block">
+          <span class="hud-label">FUEL</span>
+          <div class="hud-bar-bg"><div class="hud-bar-fill fuel-fill" id="hud-fuel-fill"></div></div>
+          <span class="hud-val" id="hud-fuel-val">100%</span>
+        </div>
+        <div class="hud-block hud-grow" style="justify-content:center;">
           <span class="hud-label">AMMO</span>
           <span id="hud-ammo"></span>
         </div>
-        <div class="hud-block hud-grow"></div>
         <div class="hud-block" id="hud-quick-bar"></div>
       </div>
     </div>
