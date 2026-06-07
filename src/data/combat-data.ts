@@ -87,9 +87,9 @@ export const COMBAT: CombatConstants = {
     COMBO_MULTIPLIERS: [1.0, 1.5, 2.0, 3.0],
     COMBO_COLORS: ['#fff', '#48f', '#a3f', '#f80'],
     SCATTER_DEFAULT: 5,
-    SHAKE_HIT: 4,
-    SHAKE_DAMAGE: 8,
-    SHAKE_BOSS: 12,
+    SHAKE_HIT: 8,
+    SHAKE_DAMAGE: 10,
+    SHAKE_BOSS: 16,
     SHAKE_LASER: 10,
-    SHAKE_NO_AMMO: 3,
+    SHAKE_NO_AMMO: 4,
 };

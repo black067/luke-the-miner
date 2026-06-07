@@ -107,9 +107,32 @@ export function spawnNextEnemy(): void {
     if (!entry) return;
     const def = entry.def;
     const w = def.w || COMBAT.ENEMY_W, h = def.h || COMBAT.ENEMY_H;
-    const spawnX = rand(WALL.left + w / 2, WALL.right - w / 2);
-    const spawnY = WALL.top - h;
+    // Random spawn from one of four sides
+    const side = randInt(0, 3); // 0:top 1:bottom 2:left 3:right
+    let spawnX: number, spawnY: number;
+    switch (side) {
+        case 0: // top
+            spawnX = rand(WALL.left + w / 2, WALL.right - w / 2);
+            spawnY = WALL.top - h;
+            break;
+        case 1: // bottom
+            spawnX = rand(WALL.left + w / 2, WALL.right - w / 2);
+            spawnY = WALL.bottom + h;
+            break;
+        case 2: // left
+            spawnX = WALL.left - w;
+            spawnY = rand(WALL.top + h / 2, WALL.bottom - h / 2);
+            break;
+        default: // right
+            spawnX = WALL.right + w;
+            spawnY = rand(WALL.top + h / 2, WALL.bottom - h / 2);
+            break;
+    }
     const enemy = createEnemy(spawnX, spawnY, def);
+    // Adjust velocity based on spawn side so enemy moves inward
+    if (side === 1) enemy.vy = -Math.abs(enemy.vy); // bottom spawn: move up
+    if (side === 2) enemy.vx = Math.abs(enemy.vx);   // left spawn: move right
+    if (side === 3) enemy.vx = -Math.abs(enemy.vx);  // right spawn: move left
     if (def.mechanic === 'boss') {
         C.wave.bossSpawned = true;
         enemy.isBoss = true;

@@ -25,9 +25,9 @@ export function updateShip(dt: number): void {
     if (s.entryTimer > 0) {
         s.entryTimer = Math.max(0, s.entryTimer - dt);
         const progress = 1 - s.entryTimer / COMBAT.SHIP_ENTRY_TIME;
-        // Ease-out: ship starts below screen, glides to default Y
+        // Ease-out: ship starts below screen, glides to center
         const startY = VH + COMBAT.SHIP_H;
-        const targetY = COMBAT.SHIP_Y;
+        const targetY = VH / 2;
         s.y = startY + (targetY - startY) * (1 - Math.pow(1 - progress, 2));
         // Cannon angle follows mouse during entry too
         const dx = C.mouse.x - s.x, dy = C.mouse.y - s.y;

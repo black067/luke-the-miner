@@ -10,17 +10,56 @@ export function hexToRgba(hex: string, alpha: number): string {
     return `rgba(${r},${g},${b},${alpha})`;
 }
 // ============================================================
-// STARFIELD
+// STARFIELD — persistent randomized stars for natural look
 // ============================================================
+
+interface Star {
+    x: number;
+    y: number;
+    speed: number;
+    size: number;
+    brightness: number;
+    twinklePhase: number;
+    twinkleSpeed: number;
+}
+
+let _stars: Star[] | null = null;
+let _starfieldLastTime: number = 0;
+
+function _initStars(): void {
+    _stars = [];
+    for (let i = 0; i < 100; i++) {
+        _stars.push({
+            x: Math.random() * VW,
+            y: Math.random() * VH,
+            speed: 8 + Math.random() * 40,
+            size: Math.random() < 0.15 ? (1.2 + Math.random() * 1.2) : (0.4 + Math.random() * 0.8),
+            brightness: 0.2 + Math.random() * 0.8,
+            twinklePhase: Math.random() * Math.PI * 2,
+            twinkleSpeed: 0.5 + Math.random() * 2.5,
+        });
+    }
+}
+
 export function drawStarfield(): void {
-    const t = performance.now() / 1000;
-    for (let i = 0; i < 70; i++) {
-        const sx = ((i * 137 + 53) % 640);
-        const sy = ((i * 251 + (t * 30)) % 360);
-        const brightness = 0.3 + 0.7 * ((i * 97 + 11) % 100) / 100;
-        const size = (i % 3 === 0) ? 1.5 : 1;
-        combatCtx.fillStyle = `rgba(255,255,255,${brightness})`;
-        combatCtx.fillRect(sx, sy, size, size);
+    if (!_stars) _initStars();
+    const now = performance.now() / 1000;
+    const dt = _starfieldLastTime ? Math.min(now - _starfieldLastTime, 0.1) : 0.016;
+    _starfieldLastTime = now;
+
+    for (const star of _stars!) {
+        // Move star downward
+        star.y += star.speed * dt;
+        // Wrap around
+        if (star.y > VH + 4) {
+            star.y = -2;
+            star.x = Math.random() * VW;
+        }
+        // Twinkle
+        const twinkle = 0.6 + 0.4 * Math.sin(star.twinklePhase + now * star.twinkleSpeed);
+        const alpha = star.brightness * twinkle;
+        combatCtx.fillStyle = `rgba(200,220,255,${alpha.toFixed(2)})`;
+        combatCtx.fillRect(star.x, star.y, star.size, star.size);
     }
 }
 // ============================================================

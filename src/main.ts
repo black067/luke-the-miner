@@ -128,8 +128,18 @@ function initEventDelegation(): void {
       case 'settings': showSettings(arg || 'main-menu'); break;
       case 'exit': UI.click(); document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#5a5;font-family:\'Press Start 2P\',monospace;font-size:14px;">SYSTEM OFFLINE</div>'; break;
       case 'intro-link': if (arg) showToast(arg); break;
-      case 'intro-accept': showDesktop(); break;
-      case 'intro-skip': showDesktop(); break;
+      case 'intro-accept':
+        import('./combat.js').then(m => {
+            showScreen('combat-screen');
+            m.startCombat(GS.selectedArea);
+        });
+        break;
+      case 'intro-skip':
+        import('./combat.js').then(m => {
+            showScreen('combat-screen');
+            m.startCombat(GS.selectedArea);
+        });
+        break;
       case 'open-window': if (arg) openWindow(arg); break;
       case 'go-to-work': goToWork(); break;
       case 'toggle-start-menu': toggleStartMenu(); break;
