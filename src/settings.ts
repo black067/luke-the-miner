@@ -2,7 +2,7 @@
    SETTINGS.TS — Settings screen
    ============================================================ */
 
-import { UI, SFX } from './audio.js';
+import { UI, SFX, BGM } from './audio.js';
 import { GS, dispatch, SAVE_KEY, addToWarehouse } from './state.js';
 import { showScreen, showToast } from './screens.js';
 import { DATA } from './data.js';
@@ -65,6 +65,7 @@ export function setVolume(type: string, val: string): void {
     }
     else if (type === 'master') {
         dispatch({ type: 'SET_MASTER_VOLUME', volume: vol });
+        BGM.updateVolume();
     }
     // Update value label
     const labelId = type === 'master' ? 'master-vol-val' : 'sfx-vol-val';

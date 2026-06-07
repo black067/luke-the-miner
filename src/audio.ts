@@ -534,3 +534,123 @@ export const UI: {
         });
     },
 };
+
+/* ============================================================
+   BGM — Looping background music (WAV files via Web Audio API)
+   Tracks: 'combat' → bgm-0.wav, 'hangar' → bgm-hangar-0.wav
+   ============================================================ */
+export const BGM: {
+    _ctx: AudioContext | null;
+    _gain: GainNode | null;
+    _source: AudioBufferSourceNode | null;
+    _buffers: Record<string, AudioBuffer>;
+    _currentTrack: string | null;
+    _pendingTrack: string | null;
+    _loaded: boolean;
+    _loading: boolean;
+    init(): Promise<void>;
+    _loadBuffer(url: string): Promise<AudioBuffer>;
+    play(track: string): void;
+    stop(): void;
+    updateVolume(): void;
+} = {
+    _ctx: null,
+    _gain: null,
+    _source: null,
+    _buffers: {},
+    _currentTrack: null,
+    _pendingTrack: null,
+    _loaded: false,
+    _loading: false,
+
+    async init() {
+        if (this._loaded || this._loading) return;
+        this._loading = true;
+        try {
+            this._ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        } catch (_e) {
+            this._loading = false;
+            return;
+        }
+
+        const tracks: Record<string, string> = {
+            combat: 'assets/bgm-0.wav',
+            hangar: 'assets/bgm-hangar-0.wav',
+        };
+
+        for (const [key, url] of Object.entries(tracks)) {
+            try {
+                this._buffers[key] = await this._loadBuffer(url);
+            } catch (_e) {
+                console.warn('BGM: failed to load', url);
+            }
+        }
+
+        if (this._ctx) {
+            this._gain = this._ctx.createGain();
+            this._gain.gain.value = GS.settings.masterVolume / 100;
+            this._gain.connect(this._ctx.destination);
+        }
+
+        this._loaded = true;
+        this._loading = false;
+
+        // If a track was requested while loading, play it now
+        if (this._pendingTrack) {
+            const track = this._pendingTrack;
+            this._pendingTrack = null;
+            this.play(track);
+        }
+    },
+
+    async _loadBuffer(url: string): Promise<AudioBuffer> {
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const arrayBuf = await resp.arrayBuffer();
+        return this._ctx!.decodeAudioData(arrayBuf);
+    },
+
+    play(track: string) {
+        // Already playing this track — nothing to do
+        if (this._currentTrack === track) return;
+        // Not loaded yet — init and stash the request
+        if (!this._loaded) {
+            this._pendingTrack = track;
+            if (!this._loading) this.init();
+            return;
+        }
+        if (!this._ctx || !this._gain) return;
+
+        this.stop();
+
+        const buffer = this._buffers[track];
+        if (!buffer) return;
+
+        if (this._ctx.state === 'suspended') this._ctx.resume();
+
+        const source = this._ctx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+        source.connect(this._gain);
+        source.start();
+
+        this._source = source;
+        this._currentTrack = track;
+    },
+
+    stop() {
+        if (this._source) {
+            try { this._source.stop(); } catch (_e) { /* already stopped */ }
+            this._source.disconnect();
+            this._source = null;
+        }
+        this._currentTrack = null;
+        this._pendingTrack = null;
+    },
+
+    updateVolume() {
+        if (this._gain) {
+            this._gain.gain.value = GS.settings.masterVolume / 100;
+        }
+    },
+};

@@ -2,7 +2,7 @@
    SCREENS.TS — Screen navigation, toast, window management
    ============================================================ */
 
-import { UI } from './audio.js';
+import { UI, BGM } from './audio.js';
 import { GS, dispatch } from './state.js';
 import { DATA } from './data.js';
 import { div, button } from './dom.js';
@@ -24,6 +24,18 @@ export function showScreen(id: string): void {
     if (id === 'desktop-screen') {
         updateTaskbar();
         updateClock();
+    }
+    // BGM switching
+    switch (id) {
+        case 'combat-screen':
+            BGM.play('combat');
+            break;
+        case 'desktop-screen':
+            BGM.play('hangar');
+            break;
+        default:
+            BGM.stop();
+            break;
     }
     // Notify external modules about screen change (e.g. clippy agent in main.ts)
     const hook = (window as any).__onScreenChange;

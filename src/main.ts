@@ -4,7 +4,7 @@
 
 import { DATA } from './data.js';
 import { GS, dispatch, saveGame, loadGame, initNewGame, switchClippyAgent, SAVE_KEY } from './state.js';
-import { SFX, UI } from './audio.js';
+import { SFX, UI, BGM } from './audio.js';
 import { showScreen, showToast, closeAllWindows, openWindow, refreshWindowBody, updateTaskbar, updateClock, showConfirm, currentWindowType } from './screens.js';
 import { showIntro } from './intro.js';
 import {
@@ -51,7 +51,7 @@ Object.assign(window, {
   // state
   DATA, GS, dispatch, saveGame, loadGame, initNewGame,
   // audio
-  SFX, UI,
+  SFX, UI, BGM,
   // screens
   showScreen, showToast, closeAllWindows, openWindow, refreshWindowBody,
   showConfirm,
