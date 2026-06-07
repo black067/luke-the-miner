@@ -83,63 +83,77 @@ export function drawPinballs(): void {
 // ============================================================
 // ENEMIES
 // ============================================================
+
 export function drawEnemies(): void {
     for (const e of C.enemies) {
+        const def = e.def;
+        const flash = e.flashTimer > 0;
+        const c = flash ? (def.flashColor || '#ffffff') : def.fillColor;
+        const dc = flash ? (def.flashColor || '#dddddd') : def.detailColor;
+
         combatCtx.save();
         combatCtx.translate(e.x, e.y);
-        if (e.isBoss) {
-            // Boss: hexagon
-            combatCtx.fillStyle = '#ff3366';
-            combatCtx.beginPath();
+
+        // ---- body shape ----
+        combatCtx.fillStyle = c;
+        combatCtx.beginPath();
+        if (def.shape === 'hexagon') {
             for (let i = 0; i < 6; i++) {
                 const a = i * Math.PI / 3 - Math.PI / 6, r = e.w / 2;
                 combatCtx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
             }
-            combatCtx.closePath();
-            combatCtx.fill();
-            combatCtx.strokeStyle = '#ff6688';
+        } else {
+            combatCtx.moveTo(0, -e.h / 2);
+            combatCtx.lineTo(e.w / 2, 0);
+            combatCtx.lineTo(0, e.h / 2);
+            combatCtx.lineTo(-e.w / 2, 0);
+        }
+        combatCtx.closePath();
+        combatCtx.fill();
+
+        // ---- outline ----
+        if (def.strokeColor) {
+            combatCtx.strokeStyle = flash ? (def.flashColor || '#cccccc') : def.strokeColor;
             combatCtx.lineWidth = 1;
             combatCtx.stroke();
-            combatCtx.fillStyle = '#fff';
+        }
+
+        // ---- inner detail ----
+        combatCtx.fillStyle = dc;
+        if (def.shape === 'hexagon') {
             combatCtx.fillRect(-3, -5, 6, 6);
             combatCtx.fillStyle = '#000';
             combatCtx.fillRect(0, -4, 3, 3);
-            // HP bar
+        } else {
+            combatCtx.beginPath();
+            combatCtx.arc(0, 0, 3, 0, Math.PI * 2);
+            combatCtx.fill();
+        }
+
+        // ---- HP bar ----
+        if (def.showHpBar) {
             const barW = e.w, barH = 3, barY = -e.h / 2 - 6;
             combatCtx.fillStyle = '#333';
             combatCtx.fillRect(-barW / 2, barY, barW, barH);
             combatCtx.fillStyle = '#ff4444';
             combatCtx.fillRect(-barW / 2, barY, barW * (e.hp / e.maxHp), barH);
         }
-        else {
-            // Normal enemy: diamond
-            combatCtx.fillStyle = '#cc6644';
+
+        // ---- shield visual ----
+        if (e.mechanic === 'shield' && e.shieldCount > 0) {
+            combatCtx.strokeStyle = 'rgba(100,150,255,0.7)';
+            combatCtx.lineWidth = 2;
             combatCtx.beginPath();
-            combatCtx.moveTo(0, -e.h / 2);
-            combatCtx.lineTo(e.w / 2, 0);
-            combatCtx.lineTo(0, e.h / 2);
-            combatCtx.lineTo(-e.w / 2, 0);
-            combatCtx.closePath();
-            combatCtx.fill();
-            combatCtx.fillStyle = '#ff9966';
-            combatCtx.beginPath();
-            combatCtx.arc(0, 0, 3, 0, Math.PI * 2);
-            combatCtx.fill();
-            // Shield visual
-            if (e.mechanic === 'shield' && e.shieldCount > 0) {
-                combatCtx.strokeStyle = 'rgba(100,150,255,0.7)';
-                combatCtx.lineWidth = 2;
-                combatCtx.beginPath();
-                combatCtx.arc(0, 0, e.w / 2 + 4, 0, Math.PI * 2);
-                combatCtx.stroke();
-                combatCtx.fillStyle = '#aaf';
-                combatCtx.font = '8px "Press Start 2P", monospace';
-                combatCtx.textAlign = 'center';
-                combatCtx.fillText(String(e.shieldCount), 0, -e.h / 2 - 8);
-                combatCtx.textAlign = 'start';
-            }
+            combatCtx.arc(0, 0, e.w / 2 + 4, 0, Math.PI * 2);
+            combatCtx.stroke();
+            combatCtx.fillStyle = '#aaf';
+            combatCtx.font = '8px "Press Start 2P", monospace';
+            combatCtx.textAlign = 'center';
+            combatCtx.fillText(String(e.shieldCount), 0, -e.h / 2 - 8);
+            combatCtx.textAlign = 'start';
         }
-        // Laser warning line
+
+        // ---- laser warning line ----
         if (e.mechanic === 'laser' && e.laserWarning > 0) {
             combatCtx.setLineDash([8, 4]);
             combatCtx.strokeStyle = 'rgba(255,60,60,0.6)';
@@ -150,6 +164,7 @@ export function drawEnemies(): void {
             combatCtx.stroke();
             combatCtx.setLineDash([]);
         }
+
         combatCtx.restore();
     }
 }
@@ -233,6 +248,38 @@ export function drawPreviewLine(): void {
     }
 }
 // ============================================================
+// LASER BEAMS (enemy laser attacks)
+// ============================================================
+export function drawLaserBeams(): void {
+    for (const L of C.laserBeams) {
+        const beamLen = 600;
+        const ex = L.x + L.dirX * beamLen;
+        const ey = L.y + L.dirY * beamLen;
+        if (!L.fired) {
+            // Warning phase: dashed red line
+            combatCtx.setLineDash([8, 6]);
+            combatCtx.strokeStyle = 'rgba(255, 60, 60, 0.6)';
+            combatCtx.lineWidth = 2;
+        } else {
+            // Firing phase: solid thick red beam with glow
+            combatCtx.setLineDash([]);
+            combatCtx.strokeStyle = 'rgba(255, 40, 40, 0.4)';
+            combatCtx.lineWidth = 10;
+            combatCtx.beginPath();
+            combatCtx.moveTo(L.x, L.y);
+            combatCtx.lineTo(ex, ey);
+            combatCtx.stroke();
+            combatCtx.strokeStyle = '#ff2222';
+            combatCtx.lineWidth = 4;
+        }
+        combatCtx.beginPath();
+        combatCtx.moveTo(L.x, L.y);
+        combatCtx.lineTo(ex, ey);
+        combatCtx.stroke();
+        combatCtx.setLineDash([]);
+    }
+}
+// ============================================================
 // PARTICLES
 // ============================================================
 export function drawParticles(): void {
@@ -283,6 +330,7 @@ export function renderCombat(): void {
     drawStarfield();
     drawBattlefield();
     drawPreviewLine();
+    drawLaserBeams();
     drawEnemies();
     drawFuelBlocks();
     drawPinballs();

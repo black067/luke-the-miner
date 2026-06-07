@@ -15,6 +15,29 @@ import { C, CombatCargo } from './combat-state.js';
 export let _combatInvActive: boolean = false;
 
 // ============================================================
+// COMBAT CENTER TOAST
+// ============================================================
+export function combatToast(msg: string, dur: number = 1.4): void {
+    C.combatToast.msg = msg;
+    C.combatToast.life = dur;
+    const el = document.getElementById('combat-toast');
+    if (el) {
+        el.textContent = msg;
+        el.classList.add('show');
+    }
+}
+
+export function updateCombatToast(): void {
+    const el = document.getElementById('combat-toast');
+    if (!el) return;
+    if (C.combatToast.life > 0) {
+        if (!el.classList.contains('show')) el.classList.add('show');
+    } else {
+        el.classList.remove('show');
+    }
+}
+
+// ============================================================
 // PAUSE MENU
 // ============================================================
 
@@ -225,6 +248,7 @@ export function closeEarlyEvacConfirm(): void {
 
 export function updateHtmlHUD(): void {
     if (!document.getElementById('combat-hud-top')) return;
+    updateCombatToast();
     const s = C.ship;
     const maxHp = getShipMaxHP(), maxFuel = getShipMaxFuel();
     const ball = getBallProps();

@@ -103,6 +103,30 @@ export const SFX: {
                 noise.start(now); noise.stop(now + ndur);
                 break;
             }
+            /* ---- laser: enemy beam fire (descending saw + high noise) ---- */
+            case 'laser': {
+                const osc = ctx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(1200 + detune, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.18);
+                const og = ctx.createGain();
+                og.gain.setValueAtTime(v * 0.18, now);
+                og.gain.exponentialRampToValueAtTime(0.001, now + 0.20);
+                osc.connect(og).connect(ctx.destination);
+                osc.start(now); osc.stop(now + 0.21);
+
+                const ndur = 0.08;
+                const noise = ctx.createBufferSource();
+                noise.buffer = _noiseBuf(ctx, ndur);
+                const filt = ctx.createBiquadFilter();
+                filt.type = 'highpass'; filt.frequency.value = 2200;
+                const ng = ctx.createGain();
+                ng.gain.setValueAtTime(v * 0.10, now);
+                ng.gain.exponentialRampToValueAtTime(0.001, now + ndur);
+                noise.connect(filt).connect(ng).connect(ctx.destination);
+                noise.start(now); noise.stop(now + ndur);
+                break;
+            }
             /* ---- kill: enemy destroyed (deep boom + low-pass noise) ---- */
             case 'kill': {
                 const osc = ctx.createOscillator();

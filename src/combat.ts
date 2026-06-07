@@ -36,7 +36,7 @@ export { dist, len, norm, rand, randInt, clamp, rayRectHit, reflectOnEdge, rayCi
 export { getGunPos, createPinball, createEnemy, spawnParticle, spawnDmgNumber } from './combat-systems.js';
 export { startWave, spawnNextEnemy, firePinball, applyBuff, getBuffBonus, getFuelDropChance, tryDropLoot, generateRandomModule, processHitEnemy, getComboBonus } from './combat-systems.js';
 export { updateShip, updatePinballs, updateEnemies, updateFuelBlocks, updateBuffs, updateParticles, updateDmgNumbers, updateWave, updatePreviewLine } from './combat-update.js';
-export { showPauseMenu, closePauseMenu, openCombatInventory, closeCombatInventory, selectCargoItem, discardSelectedCargoItem, showEarlyEvacConfirm, closeEarlyEvacConfirm, updateHtmlHUD } from './combat-ui.js';
+export { showPauseMenu, closePauseMenu, openCombatInventory, closeCombatInventory, selectCargoItem, discardSelectedCargoItem, showEarlyEvacConfirm, closeEarlyEvacConfirm, updateHtmlHUD, combatToast, updateCombatToast } from './combat-ui.js';
 export { renderCombatCargoGrid, renderCombatCargoDetailContent, renderCombatCargoDetailActions, refreshCombatCargoUI } from './combat-ui.js';
 
 // ============================================================
@@ -171,6 +171,8 @@ export function resetCombatState(): void {
     C.wave = { index: 0, name: '', spawnQueue: [], spawnTimer: 0, bossSpawned: false, allSpawned: false };
     C.particles = [];
     C.dmgNumbers = [];
+    C.laserBeams = [];
+    C.combatToast = { msg: '', life: 0 };
     C.ammoShake = 0;
     C.mouse = { x: VW / 2, y: VH / 2 };
     C.mouseDown = false;

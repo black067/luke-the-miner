@@ -29,6 +29,8 @@ export const C: CombatState = {
     wave: { index: 0, name: '', spawnQueue: [], spawnTimer: 0, bossSpawned: false, allSpawned: false },
     particles: [],
     dmgNumbers: [],
+    laserBeams: [],
+    combatToast: { msg: '', life: 0 },
     ammoShake: 0,
     mouse: { x: VW / 2, y: VH / 2 },
     mouseDown: false,

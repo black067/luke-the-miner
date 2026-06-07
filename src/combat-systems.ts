@@ -10,6 +10,7 @@ import { SFX } from './audio.js';
 import { showToast } from './screens.js';
 import { C, CombatCargo, COMBAT, WALL } from './combat-state.js';
 import { norm, rand, randInt, dist } from './combat-math.js';
+import { combatToast } from './combat-ui.js';
 import type { Pinball, CombatEnemy, EnemyDef, WarehouseItem } from './types.js';
 
 // ============================================================
@@ -51,6 +52,7 @@ export function createEnemy(x: number, y: number, def: EnemyDef): CombatEnemy {
         laserWarning: 0,
         laserDir: { x: 0, y: 0 },
         phase: rand(0, Math.PI * 2),
+        flashTimer: 0,
     };
 }
 
@@ -115,6 +117,8 @@ export function spawnNextEnemy(): void {
         enemy.isBoss = true;
         enemy.hp = def.hp;
         enemy.maxHp = def.hp;
+        combatToast('⚠ BOSS 出现！', 2.0);
+        C.shakeTimer = 0.3;
     }
     C.enemies.push(enemy);
     if (C.wave.spawnQueue.length > 0) {
@@ -293,6 +297,7 @@ export function processHitEnemy(pb: Pinball, enemy: CombatEnemy, idx: number): v
     const dmg = 1;
     const displayDmg = Math.round(weaponAtk * ballDmgMult * (1 + buffBonus + comboBonus));
     enemy.hp -= dmg;
+    enemy.flashTimer = 0.12;
     C.stats.hits++;
     spawnDmgNumber(pb.x, pb.y, displayDmg.toString());
     // Combo system

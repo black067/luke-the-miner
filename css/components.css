@@ -63,6 +63,24 @@
 #combat-battlefield { flex: 1; position: relative; overflow: hidden; }
 #combat-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
+/* Combat center toast */
+#combat-toast {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 25;
+  pointer-events: none;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #ffcc00;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 2px 2px 0 #000;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+}
+#combat-toast.show { opacity: 1; }
+
 .hud-row { display: flex; align-items: center; gap: 8px; }
 .hud-block { display: flex; align-items: center; gap: 4px; }
 .hud-block.hud-grow { flex: 1; }

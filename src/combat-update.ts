@@ -12,6 +12,7 @@ import {
     getGunPos, createPinball, processHitEnemy, tryDropLoot,
     spawnParticle, spawnDmgNumber, firePinball, startWave, spawnNextEnemy,
 } from './combat-systems.js';
+import { combatToast } from './combat-ui.js';
 import type { Pinball } from './types.js';
 
 // ============================================================
@@ -161,6 +162,8 @@ export function updateEnemies(dt: number): void {
     for (let i = C.enemies.length - 1; i >= 0; i--) {
         const e = C.enemies[i];
         const hw = e.w / 2, hh = e.h / 2;
+        // Flash timer (white flash on hit)
+        if (e.flashTimer > 0) e.flashTimer -= dt;
         switch (e.behavior) {
             case 'static': break;
             case 'hover':
@@ -195,6 +198,19 @@ export function updateEnemies(dt: number): void {
         // Laser mechanic
         if (e.mechanic === 'laser') {
             e.laserTimer! -= dt;
+            if (e.laserWarning > 0) {
+                e.laserWarning -= dt;
+                // Fire beam when warning expires
+                if (e.laserWarning <= 0) {
+                    const n = norm(e.laserDir.x, e.laserDir.y);
+                    C.laserBeams.push({
+                        x: e.x, y: e.y,
+                        dirX: n.x, dirY: n.y,
+                        life: 0.25, fired: false, dmg: e.def.dmg || 2,
+                        owner: e,
+                    });
+                }
+            }
             if (e.laserTimer! <= 0) {
                 e.laserWarning = 0.5;
                 e.laserDir = norm(s.x - e.x, COMBAT.SHIP_Y - e.y);
@@ -209,6 +225,7 @@ export function updateEnemies(dt: number): void {
                 s.hp -= dmg;
                 C.stats.hpLost = (C.stats.hpLost || 0) + dmg;
                 s.invincibleTimer = COMBAT.SHIP_INVINCIBLE_S;
+                C.shakeTimer = 0.15;
                 SFX.play('damage');
                 e.vy = -Math.abs(e.vy || 50) - 40;
                 e.vx = (e.x - s.x) * 2 + rand(-30, 30);
@@ -285,6 +302,7 @@ export function updateWave(dt: number): void {
         C.wave.index++;
         startWave();
         SFX.play('waveUp');
+        combatToast(`⚡ 波次 ${C.wave.index + 1}`, 2.0);
         return;
     }
     if (!C.wave.allSpawned) {
@@ -382,6 +400,42 @@ export function updatePreviewLine(): void {
 }
 
 // ============================================================
+// LASER BEAMS
+// ============================================================
+export function updateLaserBeams(dt: number): void {
+    const s = C.ship;
+    for (let i = C.laserBeams.length - 1; i >= 0; i--) {
+        const L = C.laserBeams[i];
+        L.life -= dt;
+        // Track the owning enemy's position
+        if (L.owner && C.enemies.includes(L.owner)) {
+            L.x = L.owner.x; L.y = L.owner.y;
+        }
+        // Fire after 0.1s of warning — deal damage on first frame of firing
+        if (!L.fired && L.life < 0.15) {
+            L.fired = true;
+            SFX.play('laser');
+            // Check ship proximity to beam line
+            const fx = s.x - L.x, fy = COMBAT.SHIP_Y - L.y;
+            const proj = fx * L.dirX + fy * L.dirY;
+            if (proj > 0 && proj < 600) {
+                const px = L.x + L.dirX * proj;
+                const py = L.y + L.dirY * proj;
+                const hitDist = Math.hypot(px - s.x, py - COMBAT.SHIP_Y);
+                if (hitDist < COMBAT.SHIP_W / 2 + 4 && s.invincibleTimer <= 0) {
+                    s.hp -= L.dmg;
+                    C.stats.hpLost = (C.stats.hpLost || 0) + L.dmg;
+                    s.invincibleTimer = COMBAT.SHIP_INVINCIBLE_S;
+                    C.shakeTimer = 0.2;
+                    SFX.play('damage');
+                }
+            }
+        }
+        if (L.life <= 0) C.laserBeams.splice(i, 1);
+    }
+}
+
+// ============================================================
 // MAIN UPDATE
 // ============================================================
 
@@ -395,6 +449,9 @@ export function update(dt: number): void {
     updateFuelBlocks(dt);
     updateParticles(dt);
     updateDmgNumbers(dt);
+    updateLaserBeams(dt);
+    // Combat toast timer
+    if (C.combatToast.life > 0) C.combatToast.life = Math.max(0, C.combatToast.life - dt);
     // Combo timer
     if (C.comboActive && C.comboTimer > 0) {
         C.comboTimer -= dt;

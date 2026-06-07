@@ -19,7 +19,8 @@ export interface UpgradeEffect { hp?: number; fuel?: number; speed?: number; car
 export interface UpgradeNode { id: string; label: string; cost: UpgradeCost; effect: UpgradeEffect; req: string | null; desc?: string; }
 export interface UpgradeBranch { name: string; icon: string; description: string; nodes: UpgradeNode[]; }
 export type EnemyBehavior = 'hover' | 'zigzag' | 'static' | 'dive' | 'boss';
-export interface EnemyDef { id: string; name: string; icon: string; hp: number; dmg: number; speed: number; w: number; h: number; behavior: EnemyBehavior; desc: string; mechanic?: string; }
+export type EnemyShape = 'diamond' | 'hexagon';
+export interface EnemyDef { id: string; name: string; icon: string; hp: number; dmg: number; speed: number; w: number; h: number; behavior: EnemyBehavior; desc: string; mechanic?: string; shape: EnemyShape; fillColor: string; detailColor: string; strokeColor?: string; flashColor?: string; showHpBar?: boolean; }
 export interface WaveGroup { type: string; count: number; interval: number; }
 export interface WaveDef { index: number; name: string; boss?: boolean; enemies: WaveGroup[]; }
 export interface AreaDef { id: string; name: string; difficulty: string; difficultyStars: number; locked: boolean; specialResource: string; resourceGoal: number; waves: number; desc: string; }
@@ -39,7 +40,7 @@ export interface WarehouseItem extends BaseModule { qty: number; priceBtc?: numb
 export interface GameStateObj { screen: string; settingsReturn: string; isNewGame: boolean; debt: number; bitcoin: number; cash: number; selectedArea: string; combatResult: string | null; firstCombat: boolean; equipment: Equipment; quickBar: QuickBarSlot[]; warehouse: WarehouseItem[]; upgrades: Set<string>; unlocks: Unlocks; mailsRead: Record<string, boolean>; settings: GameSettings; audio: AudioState; }
 export interface CombatShip { x: number; hp: number; fuel: number; invincibleTimer: number; angle: number; }
 export interface Pinball { x: number; y: number; vx: number; vy: number; durability: number; speedMult: number; }
-export interface CombatEnemy { x: number; y: number; vx: number; vy: number; hp: number; maxHp: number; w: number; h: number; def: EnemyDef; isBoss: boolean; behavior: EnemyBehavior; mechanic: string | null; shieldCount: number; splitChildren: boolean; laserTimer: number; laserWarning: number; laserDir: { x: number; y: number }; phase: number; }
+export interface CombatEnemy { x: number; y: number; vx: number; vy: number; hp: number; maxHp: number; w: number; h: number; def: EnemyDef; isBoss: boolean; behavior: EnemyBehavior; mechanic: string | null; shieldCount: number; splitChildren: boolean; laserTimer: number; laserWarning: number; laserDir: { x: number; y: number }; phase: number; flashTimer: number; }
 export interface FuelBlock { x: number; y: number; vx: number; vy: number; state: 'solid' | 'ghost' | 'collected'; }
 export interface CombatBuff { id: string; timer: number; value: number; }
 export interface Particle { x: number; y: number; vx: number; vy: number; life: number; maxLife: number; color: string; size: number; }
@@ -48,7 +49,8 @@ export interface SpawnEntry { type: string; def: EnemyDef; interval: number; }
 export interface CombatWave { index: number; name: string; spawnQueue: SpawnEntry[]; spawnTimer: number; bossSpawned: boolean; allSpawned: boolean; }
 export interface CombatStats { killed: number; hits: number; shots: number; oreValue: number; resourceCollected: number; hpLost?: number; time?: number; cargo: unknown[]; }
 export interface CombatPreview { p1: { x: number; y: number } | null; p2: { x: number; y: number } | null; targetHit: number; }
-export interface CombatState { state: 'idle' | 'playing' | 'paused' | 'victory' | 'defeat' | 'breakdown' | 'evacuate'; areaId: string; ship: CombatShip; pinballs: Pinball[]; ammo: number; fireCooldown: number; enemies: CombatEnemy[]; fuelBlocks: FuelBlock[]; buffs: CombatBuff[]; wave: CombatWave; particles: Particle[]; dmgNumbers: DmgNumber[]; ammoShake: number; mouse: { x: number; y: number }; mouseDown: boolean; stats: CombatStats; shakeTimer: number; preview: CombatPreview; keys: Record<string, boolean>; _startTime: number; _hudBtns: unknown[]; _hoveredBtn: unknown; _tutorialShown: boolean; comboCount: number; comboTimer: number; comboActive: boolean; }
+export interface LaserBeam { x: number; y: number; dirX: number; dirY: number; life: number; fired: boolean; dmg: number; owner: CombatEnemy | null; }
+export interface CombatState { state: 'idle' | 'playing' | 'paused' | 'victory' | 'defeat' | 'breakdown' | 'evacuate'; areaId: string; ship: CombatShip; pinballs: Pinball[]; ammo: number; fireCooldown: number; enemies: CombatEnemy[]; fuelBlocks: FuelBlock[]; buffs: CombatBuff[]; wave: CombatWave; particles: Particle[]; dmgNumbers: DmgNumber[]; laserBeams: LaserBeam[]; combatToast: { msg: string; life: number }; ammoShake: number; mouse: { x: number; y: number }; mouseDown: boolean; stats: CombatStats; shakeTimer: number; preview: CombatPreview; keys: Record<string, boolean>; _startTime: number; _hudBtns: unknown[]; _hoveredBtn: unknown; _tutorialShown: boolean; comboCount: number; comboTimer: number; comboActive: boolean; }
 export type CombatResult = 'victory' | 'defeat' | 'breakdown' | 'evacuate';
 export interface WhSelection { source: 'warehouse' | 'quickbar' | 'equip'; index?: number; slot?: number; slotKey?: string; }
 export interface UgPositions { [key: string]: Array<{ x: number; y: number }>; }
