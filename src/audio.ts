@@ -588,7 +588,9 @@ export const BGM: {
 
         if (this._ctx) {
             this._gain = this._ctx.createGain();
-            this._gain.gain.value = GS.settings.masterVolume / 100;
+            const mv = GS.settings.masterVolume ?? 80;
+            const bv = GS.settings.bgmVolume ?? 80;
+            this._gain.gain.value = (mv / 100) * (bv / 100);
             this._gain.connect(this._ctx.destination);
         }
 
@@ -650,7 +652,9 @@ export const BGM: {
 
     updateVolume() {
         if (this._gain) {
-            this._gain.gain.value = GS.settings.masterVolume / 100;
+            const mv = GS.settings.masterVolume ?? 80;
+            const bv = GS.settings.bgmVolume ?? 80;
+            this._gain.gain.value = (mv / 100) * (bv / 100);
         }
     },
 };

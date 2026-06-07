@@ -223,10 +223,14 @@ const App = {
     showScreen('main-menu');
     setTimeout(() => UI.startup(), 300);
     _initMenuStars();
-    // Hover sounds
+    // Hover sounds — only fire once when entering a new interactive element
+    let _lastHoverTarget: Element | null = null;
     document.addEventListener('mouseover', (e: MouseEvent) => {
-      const target = (e.target as Element).closest('button, .desktop-icon, .start-menu-item, [role=tab]');
-      if (target) UI.hover();
+      const target = (e.target as Element).closest('button, .desktop-icon, .start-menu-item, [role=tab]') as Element | null;
+      if (!target) { _lastHoverTarget = null; return; }
+      if (target === _lastHoverTarget) return;
+      _lastHoverTarget = target;
+      UI.hover();
     });
     // Keyboard shortcuts
     document.addEventListener('keydown', (e: KeyboardEvent) => {

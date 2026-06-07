@@ -26,6 +26,7 @@ export type GSAction =
   | { type: 'MARK_MAIL_READ'; mailId: string }
   | { type: 'SET_SETTINGS'; settings: GameStateObj['settings'] }
   | { type: 'SET_MASTER_VOLUME'; volume: number }
+  | { type: 'SET_BGM_VOLUME'; volume: number }
   | { type: 'SET_SFX_VOLUME'; volume: number }
   | { type: 'SET_UI_SCALE'; scale: number }
   | { type: 'SET_CLIPPY_AGENT'; agent: string }

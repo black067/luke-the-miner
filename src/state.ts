@@ -31,6 +31,7 @@ export let GS: GameStateObj = {
     mailsRead: {},
     settings: {
         masterVolume: 80,
+        bgmVolume: 80,
         sfxVolume: 90,
         crtFilter: 80,
         uiScale: 100,
@@ -68,6 +69,7 @@ const DEFAULT_GS: GameStateObj = {
     mailsRead: {},
     settings: {
         masterVolume: 80,
+        bgmVolume: 80,
         sfxVolume: 90,
         crtFilter: 80,
         uiScale: 100,
@@ -136,6 +138,8 @@ export function gsReducer(state: GameStateObj, action: GSAction): GameStateObj {
             return { ...state, settings: action.settings };
         case 'SET_MASTER_VOLUME':
             return { ...state, settings: { ...state.settings, masterVolume: action.volume } };
+        case 'SET_BGM_VOLUME':
+            return { ...state, settings: { ...state.settings, bgmVolume: action.volume } };
         case 'SET_SFX_VOLUME':
             return { ...state, settings: { ...state.settings, sfxVolume: action.volume } };
         case 'SET_UI_SCALE':
@@ -209,6 +213,7 @@ export function loadGame(): boolean {
         GS.mailsRead = data.mailsRead || {};
         GS.settings = data.settings || {
             masterVolume: 80,
+            bgmVolume: 80,
             sfxVolume: 90,
             crtFilter: 80,
             uiScale: 100,
@@ -216,6 +221,8 @@ export function loadGame(): boolean {
             clippyAgent: 'Clippy',
             shakeIntensity: 100,
         };
+        // Migrate old saves that lack bgmVolume
+        if (GS.settings.bgmVolume == null) GS.settings.bgmVolume = 80;
         GS.isNewGame = false;
         return true;
     }

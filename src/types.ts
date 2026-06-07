@@ -34,7 +34,7 @@ export interface GameData { QUALITY: Record<QualityKey, QualityDef>; WEAPONS: We
 export interface QuickBarSlot { itemId: string | null; qty: number; }
 export interface Equipment { weapon: WeaponModule | null; ball: BallModule | null; storage: StorageModule | null; accessories: (AccessoryModule | null)[]; }
 export interface Unlocks { radioRepaired: boolean; undergroundVisible: boolean; areas: Record<string, boolean>; }
-export interface GameSettings { masterVolume: number; sfxVolume: number; crtFilter: number; uiScale: number; language: string; clippyAgent: string; shakeIntensity: number; }
+export interface GameSettings { masterVolume: number; bgmVolume: number; sfxVolume: number; crtFilter: number; uiScale: number; language: string; clippyAgent: string; shakeIntensity: number; }
 export interface AudioState { sfxCache: { randomFactor: number; }; }
 export interface WarehouseItem extends BaseModule { qty: number; priceBtc?: number; carryMax?: number; }
 export interface GameStateObj { screen: string; settingsReturn: string; isNewGame: boolean; debt: number; bitcoin: number; cash: number; selectedArea: string; combatResult: string | null; firstCombat: boolean; equipment: Equipment; quickBar: QuickBarSlot[]; warehouse: WarehouseItem[]; upgrades: Set<string>; unlocks: Unlocks; mailsRead: Record<string, boolean>; settings: GameSettings; audio: AudioState; }

@@ -67,8 +67,12 @@ export function setVolume(type: string, val: string): void {
         dispatch({ type: 'SET_MASTER_VOLUME', volume: vol });
         BGM.updateVolume();
     }
+    else if (type === 'bgm') {
+        dispatch({ type: 'SET_BGM_VOLUME', volume: vol });
+        BGM.updateVolume();
+    }
     // Update value label
-    const labelId = type === 'master' ? 'master-vol-val' : 'sfx-vol-val';
+    const labelId = type === 'master' ? 'master-vol-val' : type === 'bgm' ? 'bgm-vol-val' : 'sfx-vol-val';
     const label = document.getElementById(labelId);
     if (label) label.textContent = vol + '%';
 }
@@ -80,6 +84,12 @@ function syncVolumeUI(): void {
         masterSlider.value = String(GS.settings.masterVolume ?? 80);
         const label = document.getElementById('master-vol-val');
         if (label) label.textContent = (GS.settings.masterVolume ?? 80) + '%';
+    }
+    const bgmSlider = document.querySelector('#settings-screen input[data-action-arg="bgm"]') as HTMLInputElement;
+    if (bgmSlider) {
+        bgmSlider.value = String(GS.settings.bgmVolume ?? 80);
+        const label = document.getElementById('bgm-vol-val');
+        if (label) label.textContent = (GS.settings.bgmVolume ?? 80) + '%';
     }
     const sfxSlider = document.querySelector('#settings-screen input[data-action-arg="sfx"]') as HTMLInputElement;
     if (sfxSlider) {

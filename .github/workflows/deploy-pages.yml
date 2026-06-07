@@ -45,6 +45,7 @@ jobs:
           cp index.html _site/
           cp -r css _site/
           cp -r dist _site/
+          cp -r assets _site/
           echo "=== _site contents ==="
           find _site -type f | sort
 
