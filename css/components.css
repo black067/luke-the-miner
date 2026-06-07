@@ -6,7 +6,7 @@
 #desktop-screen { flex-direction: column; background: #008080; position: relative; }
 
 /* Desktop Icons */
-.desktop-icons { position: absolute; top: 8px; left: 8px; display: flex; flex-direction: column; gap: 4px; z-index: 10; }
+.desktop-icons { position: absolute; top: 8px; left: 8px; display: flex; flex-flow: column wrap; align-content: flex-start; gap: 4px; z-index: 10; max-height: calc(100% - 36px); /* leave room for taskbar */ }
 .desktop-icon { 
    display: flex; 
    flex-direction: column; 
