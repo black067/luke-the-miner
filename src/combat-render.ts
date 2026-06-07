@@ -273,7 +273,7 @@ export function drawEnemies(): void {
             combatCtx.arc(0, 0, e.w / 2 + 4, 0, Math.PI * 2);
             combatCtx.stroke();
             combatCtx.fillStyle = '#aaf';
-            combatCtx.font = '8px "Press Start 2P", monospace';
+            combatCtx.font = '8px "Fusion Pixel", monospace';
             combatCtx.textAlign = 'center';
             combatCtx.fillText(String(e.shieldCount), 0, -e.h / 2 - 8);
             combatCtx.textAlign = 'start';
@@ -420,7 +420,7 @@ export function drawParticles(): void {
 // DAMAGE NUMBERS
 // ============================================================
 export function drawDmgNumbers(): void {
-    combatCtx.font = '9px "Press Start 2P", monospace';
+    combatCtx.font = '9px "Fusion Pixel", monospace';
     combatCtx.textAlign = 'center';
     combatCtx.textBaseline = 'middle';
     for (const d of C.dmgNumbers) {

@@ -126,7 +126,7 @@ function initEventDelegation(): void {
         break;
       case 'continue': showDesktop(); break;
       case 'settings': showSettings(arg || 'main-menu'); break;
-      case 'exit': UI.click(); document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#5a5;font-family:\'Press Start 2P\',monospace;font-size:14px;">SYSTEM OFFLINE</div>'; break;
+      case 'exit': UI.click(); document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#5a5;font-family:\'Fusion Pixel\',monospace;font-size:14px;">SYSTEM OFFLINE</div>'; break;
       case 'intro-link': if (arg) showToast(arg); break;
       case 'intro-accept':
         import('./combat.js').then(m => {
@@ -208,7 +208,7 @@ const App = {
   returnToHangar,
   exitGame() {
     UI.click();
-    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#5a5;font-family:\'Press Start 2P\',monospace;font-size:14px;">SYSTEM OFFLINE</div>';
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#5a5;font-family:\'Fusion Pixel\',monospace;font-size:14px;">SYSTEM OFFLINE</div>';
   },
   showToast,
   init() {

@@ -7,9 +7,9 @@ import { GS } from './state.js';
 export function getRadioBody(): string {
     if (!GS.unlocks.radioRepaired) {
         return `<div style="text-align:center;padding:24px;color:#666;">
-      <div style="font-size:48px;margin-bottom:16px;">📻</div>
+      <div style="margin-bottom:16px;">📻</div>
       <div>收音机已损坏</div>
-      <div style="font-size:11px;color:#555;margin-top:8px;">无法接收信号</div>
+      <div style="color:#555;margin-top:8px;">无法接收信号</div>
     </div>`;
     }
     return `

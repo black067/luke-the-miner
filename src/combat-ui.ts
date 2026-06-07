@@ -234,7 +234,7 @@ export function showEarlyEvacConfirm(goal: number): void {
     </div>
     <div class="window-body">
       <p>特产尚未收集齐全（${C.stats.resourceCollected}/${goal}），确定要早退撤离吗？</p>
-      <p style="font-size:10px;color:#555;">早退将被处以旷工罚款。</p>
+      <p style="color:#555;">早退将被处以旷工罚款。</p>
       <div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
         <button data-action="confirm-early-evac">确认早退</button>
         <button data-action="close-early-evac">取消</button>
