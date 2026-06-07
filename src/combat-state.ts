@@ -41,6 +41,7 @@ export const C: CombatState = {
         hpLost: 0, time: 0,
     },
     shakeTimer: 0,
+    shakeMagnitude: 0,
     preview: { p1: null, p2: null, targetHit: 0 },
     keys: {},
     _startTime: 0,

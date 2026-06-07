@@ -10,7 +10,7 @@ import { showIntro } from './intro.js';
 import {
   showSettings, closeSettings, switchSettingsTab, setVolume,
   setUIScale, adjustUIScale, applyUIScale, unlockAllFeatures,
-  giveRandomItem, clearCacheAndReset, syncCombatCanvasZoom
+  giveRandomItem, clearCacheAndReset, syncCombatCanvasZoom, setShakeIntensity
 } from './settings.js';
 import {
   showDesktop, renderAreaList, selectArea, goToWork, powerOff,
@@ -60,7 +60,7 @@ Object.assign(window, {
   // settings
   showSettings, closeSettings, switchSettingsTab, setVolume,
   setUIScale, adjustUIScale, applyUIScale, unlockAllFeatures,
-  giveRandomItem, clearCacheAndReset, syncCombatCanvasZoom,
+  giveRandomItem, clearCacheAndReset, syncCombatCanvasZoom, setShakeIntensity,
   // desktop
   showDesktop, renderAreaList, selectArea, goToWork, powerOff,
   toggleStartMenu, closeStartMenu, updateTaskbar, updateClock,
@@ -169,6 +169,9 @@ function initEventDelegation(): void {
     switch (action) {
       case 'set-volume':
         if (arg) setVolume(arg, (e.target as HTMLInputElement).value);
+        break;
+      case 'set-shake-intensity':
+        setShakeIntensity((e.target as HTMLInputElement).value);
         break;
       case 'switch-clippy':
         switchClippyAgent((e.target as HTMLSelectElement).value);

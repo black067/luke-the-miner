@@ -36,6 +36,7 @@ export let GS: GameStateObj = {
         uiScale: 100,
         language: 'zh-CN',
         clippyAgent: 'Clippy',
+        shakeIntensity: 100,
     },
     audio: {
         sfxCache: { randomFactor: 0 },
@@ -72,6 +73,7 @@ const DEFAULT_GS: GameStateObj = {
         uiScale: 100,
         language: 'zh-CN',
         clippyAgent: 'Clippy',
+        shakeIntensity: 100,
     },
     audio: {
         sfxCache: { randomFactor: 0 },
@@ -140,6 +142,8 @@ export function gsReducer(state: GameStateObj, action: GSAction): GameStateObj {
             return { ...state, settings: { ...state.settings, uiScale: action.scale } };
         case 'SET_CLIPPY_AGENT':
             return { ...state, settings: { ...state.settings, clippyAgent: action.agent } };
+        case 'SET_SHAKE_INTENSITY':
+            return { ...state, settings: { ...state.settings, shakeIntensity: action.value } };
         case 'RESET_GAME':
             return { ...DEFAULT_GS, upgrades: new Set(), equipment: { weapon: null, ball: null, storage: null, accessories: [null, null, null] }, warehouse: [] };
         default:
@@ -208,6 +212,7 @@ export function loadGame(): boolean {
             uiScale: 100,
             language: 'zh-CN',
             clippyAgent: 'Clippy',
+            shakeIntensity: 100,
         };
         GS.isNewGame = false;
         return true;

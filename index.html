@@ -230,6 +230,13 @@
           <div class="field-row"><label>音效音量</label><input type="range" min="0" max="100" value="90" data-action="set-volume" data-action-arg="sfx"></div>
           <div class="field-row"><label>CRT 滤镜</label><input type="range" min="0" max="100" value="80"></div>
           <div class="field-row">
+            <label>震动强度</label>
+            <span>
+              <input type="range" min="0" max="200" value="100" data-action="set-shake-intensity" style="width:120px;">
+              <span id="shake-intensity-val" style="padding: 0 4px;">100%</span>
+            </span>
+          </div>
+          <div class="field-row">
             <label>界面缩放</label>
             <span>
               <button class="button-min" data-action="adjust-ui-scale" data-action-arg="-10">−</button>

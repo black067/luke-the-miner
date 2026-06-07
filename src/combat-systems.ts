@@ -117,6 +117,7 @@ export function spawnNextEnemy(): void {
         enemy.maxHp = def.hp;
         combatToast('⚠ BOSS 出现！', 2.0);
         C.shakeTimer = 0.3;
+        C.shakeMagnitude = COMBAT.SHAKE_BOSS;
     }
     C.enemies.push(enemy);
     if (C.wave.spawnQueue.length > 0) {
@@ -311,6 +312,7 @@ export function processHitEnemy(pb: Pinball, enemy: CombatEnemy, idx: number): v
     pb.vy -= 2 * dot * uny;
     SFX.play('hit');
     C.shakeTimer = 0.08;
+    C.shakeMagnitude = COMBAT.SHAKE_HIT;
     // Fuel block drop
     const solidBlocks = C.fuelBlocks.filter(fb => fb.state === 'solid').length;
     if (solidBlocks < COMBAT.FUEL_MAX_BLOCKS && Math.random() < getFuelDropChance()) {

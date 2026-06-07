@@ -29,4 +29,5 @@ export type GSAction =
   | { type: 'SET_SFX_VOLUME'; volume: number }
   | { type: 'SET_UI_SCALE'; scale: number }
   | { type: 'SET_CLIPPY_AGENT'; agent: string }
+  | { type: 'SET_SHAKE_INTENSITY'; value: number }
   | { type: 'RESET_GAME' }; // Full game reset to defaults

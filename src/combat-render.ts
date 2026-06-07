@@ -3,6 +3,7 @@
    ============================================================ */
 
 import { C, combatCtx, COMBAT, WALL, VW, VH, clamp, getGunPos } from './combat.js';
+import { GS } from './state.js';
 
 export function hexToRgba(hex: string, alpha: number): string {
     const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
@@ -393,9 +394,12 @@ export function drawDmgNumbers(): void {
 export function renderCombat(): void {
     combatCtx.clearRect(0, 0, VW, VH);
     let shakeX = 0, shakeY = 0;
-    if (C.shakeTimer > 0) {
-        shakeX = (Math.random() - 0.5) * 4 * (C.shakeTimer / 0.08);
-        shakeY = (Math.random() - 0.5) * 4 * (C.shakeTimer / 0.08);
+    if (C.shakeTimer > 0 && C.shakeMagnitude > 0) {
+        const userCoeff = (GS.settings.shakeIntensity ?? 100) / 100;
+        const decay = C.shakeTimer / 0.08; // normalize to 1.0 at peak
+        const magnitude = C.shakeMagnitude * userCoeff * Math.min(decay, 1.0);
+        shakeX = (Math.random() - 0.5) * magnitude;
+        shakeY = (Math.random() - 0.5) * magnitude;
     }
     combatCtx.save();
     combatCtx.translate(shakeX, shakeY);

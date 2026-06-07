@@ -240,6 +240,7 @@ export function updateEnemies(dt: number): void {
                 C.stats.hpLost = (C.stats.hpLost || 0) + dmg;
                 s.invincibleTimer = COMBAT.SHIP_INVINCIBLE_S;
                 C.shakeTimer = 0.15;
+                C.shakeMagnitude = COMBAT.SHAKE_DAMAGE;
                 SFX.play('damage');
                 e.vy = -Math.abs(e.vy || 50) - 40;
                 e.vx = (e.x - s.x) * 2 + rand(-30, 30);
@@ -441,6 +442,7 @@ export function updateLaserBeams(dt: number): void {
                     C.stats.hpLost = (C.stats.hpLost || 0) + L.dmg;
                     s.invincibleTimer = COMBAT.SHIP_INVINCIBLE_S;
                     C.shakeTimer = 0.2;
+                    C.shakeMagnitude = COMBAT.SHAKE_LASER;
                     SFX.play('damage');
                 }
             }

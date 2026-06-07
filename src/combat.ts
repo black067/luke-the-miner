@@ -182,6 +182,7 @@ export function resetCombatState(): void {
     C.mouseDown = false;
     C.stats = { killed: 0, hits: 0, shots: 0, oreValue: 0, resourceCollected: 0, cargo: [], hpLost: 0, time: 0 };
     C.shakeTimer = 0;
+    C.shakeMagnitude = 0;
     C.preview = { p1: null, p2: null, targetHit: 0 };
     C.keys = {};
     C._hudBtns = [];

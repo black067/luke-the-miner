@@ -23,6 +23,13 @@ export function showSettings(from: string): void {
     const sel = document.getElementById('clippy-agent-select');
     if (sel)
         (sel as HTMLSelectElement).value = GS.settings.clippyAgent || 'Merlin';
+    // Sync shake intensity slider
+    const shakeSlider = document.querySelector('#settings-screen input[data-action="set-shake-intensity"]') as HTMLInputElement;
+    if (shakeSlider) {
+        shakeSlider.value = String(GS.settings.shakeIntensity ?? 100);
+        const label = document.getElementById('shake-intensity-val');
+        if (label) label.textContent = (GS.settings.shakeIntensity ?? 100) + '%';
+    }
 }
 export function closeSettings(): void {
     UI.click();
@@ -73,6 +80,13 @@ export function setUIScale(val: string): void {
     const label = document.getElementById('ui-scale-val');
     if (label)
         label.textContent = scale + '%';
+}
+export function setShakeIntensity(val: string): void {
+    const intensity = parseInt(val) || 100;
+    dispatch({ type: 'SET_SHAKE_INTENSITY', value: intensity });
+    const label = document.getElementById('shake-intensity-val');
+    if (label)
+        label.textContent = intensity + '%';
 }
 export function adjustUIScale(delta: number): void {
     const current = GS.settings.uiScale || 100;
